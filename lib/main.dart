@@ -1,7 +1,8 @@
+import 'package:alp_depd_flutter/view/pages/pages.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MaterialApp(home: home()));
 }
 
 class MyApp extends StatelessWidget {
