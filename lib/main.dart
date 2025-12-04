@@ -28,10 +28,11 @@ class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = const [
-    Home(),        // Your timer page
-    Summary(),     // Your journal page
-    Profile(), 
-    Minigame(),    // Create this page
+    Timersettingspage(),
+    Summary(), // Your journal page
+    Profile(),
+    Minigame(), // Create this page
+    // Your timer page
   ];
 
   void _onItemTapped(int index) {
@@ -51,70 +52,15 @@ class _MainNavigationState extends State<MainNavigation> {
         unselectedItemColor: Colors.grey,
 
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.timer),
-            label: "Timer",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: "Journal",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.games),
-            label: "Minigame",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.timer), label: "Timer"),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: "Journal"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.games), label: "Minigame"),
         ],
       ),
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import 'package:alp_depd_flutter/view/pages/pages.dart';
 // import 'package:flutter/material.dart';

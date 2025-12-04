@@ -156,6 +156,7 @@ class Timerviewmodel with ChangeNotifier {
     notifyListeners();
   }
 
+  @override
   void dispose() {
     if (_isRunning) {
       _timer.cancel();
