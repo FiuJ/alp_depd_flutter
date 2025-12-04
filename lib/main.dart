@@ -28,9 +28,10 @@ class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = const [
-    home(),        // Your timer page
-    journal(),     // Your journal page
-    profile(),     // Create this page
+    Home(),        // Your timer page
+    Journal(),     // Your journal page
+    Profile(), 
+    Minigame(),    // Create this page
   ];
 
   void _onItemTapped(int index) {
@@ -61,6 +62,10 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: "Profile",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.games),
+            label: "Minigame",
           ),
         ],
       ),

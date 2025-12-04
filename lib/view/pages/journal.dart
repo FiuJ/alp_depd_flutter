@@ -1,13 +1,13 @@
 part of 'pages.dart';
 
-class journal extends StatefulWidget {
-  const journal({super.key});
+class Journal extends StatefulWidget {
+  const Journal({super.key});
 
   @override
-  State<journal> createState() => _journalState();
+  State<Journal> createState() => _JournalState();
 }
 
-class _journalState extends State<journal> {
+class _JournalState extends State<Journal> {
   // State variables
   double _stressLevel = 20;
   final TextEditingController _titleController = TextEditingController();
@@ -74,7 +74,7 @@ class _journalState extends State<journal> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -118,7 +118,7 @@ class _journalState extends State<journal> {
                         inactiveTrackColor: Colors.grey[200],
                         thumbColor: Colors.white,
                         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12, elevation: 2),
-                        overlayColor: _themeColor.withOpacity(0.2),
+                        overlayColor: _themeColor.withValues(alpha: 0.2),
                       ),
                       child: Slider(
                         value: _stressLevel,
