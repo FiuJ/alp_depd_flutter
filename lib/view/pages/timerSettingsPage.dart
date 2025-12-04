@@ -61,7 +61,7 @@ class _TimersettingspageState extends State<Timersettingspage> {
           padding: const EdgeInsets.only(top: 32.0),
           child: Column(
             children: [
-              SvgPicture.asset('assets/images/yucca.svg', height: 287),
+              SvgPicture.asset('assets/images/Yucca.svg', height: 287),
               // Image.asset('assets/images/yucca.svg'),
               Padding(
                 padding: const EdgeInsets.only(

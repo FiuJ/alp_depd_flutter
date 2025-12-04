@@ -15,6 +15,7 @@ class Timerviewmodel with ChangeNotifier {
 
   // Callbacks
   VoidCallback? _onPhaseComplete;
+  VoidCallback? _onAllCyclesComplete;
 
   // Getters
   int get remainingSeconds => _remainingSeconds;
@@ -46,6 +47,10 @@ class Timerviewmodel with ChangeNotifier {
 
   void setPhaseCompleteCallback(VoidCallback callback) {
     _onPhaseComplete = callback;
+  }
+
+  void setAllCyclesCompleteCallback(VoidCallback callback) {
+    _onAllCyclesComplete = callback;
   }
 
   // Initialize timer with durations
@@ -125,6 +130,8 @@ class Timerviewmodel with ChangeNotifier {
         _startPhase();
       } else {
         // All cycles complete
+        // notify listener that all cycles are complete (UI can pop)
+        _onAllCyclesComplete?.call();
         resetTimer();
       }
     }

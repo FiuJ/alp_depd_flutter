@@ -24,6 +24,13 @@ class _TimerPageState extends State<TimerPage> {
     super.initState();
     _viewModel = Timerviewmodel();
     _viewModel.setPhaseCompleteCallback(_showPhaseCompleteDialog);
+
+    _viewModel.setAllCyclesCompleteCallback(() {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    });
+
     _viewModel.initialize(
       widget.workDuration,
       widget.breakDuration,
@@ -32,19 +39,19 @@ class _TimerPageState extends State<TimerPage> {
   }
 
   void _showPhaseCompleteDialog() {
-    if (_viewModel.isWorkPhase) {
-      // Work phase complete - show break in popup
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => _BreakDialog(
-          viewModel: _viewModel,
-          onContinue: () {
-            _viewModel.moveToNextPhaseFromDialog();
-          },
-        ),
-      );
-    }
+    // ViewModel calls this callback when a work phase completes.
+    // The ViewModel already flipped its internal `_isWorkPhase` state,
+    // so just show the break dialog here unconditionally.
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _BreakDialog(
+        viewModel: _viewModel,
+        onContinue: () {
+          _viewModel.moveToNextPhaseFromDialog();
+        },
+      ),
+    );
   }
 
   @override
@@ -55,143 +62,151 @@ class _TimerPageState extends State<TimerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        color: Style.background,
-        child: Column(
-          children: [
-            // Top content - centered
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Phase indicator
-                  Text(
-                    _viewModel.isWorkPhase ? 'Work' : 'Break',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Style.orange,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
+    return AnimatedBuilder(
+      animation: _viewModel,
+      builder: (context, child) {
+        return Scaffold(
+          body: Container(
+            color: Style.background,
+            child: Column(
+              children: [
+                // Top content - centered
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Phase indicator
+                      Text(
+                        _viewModel.isWorkPhase ? 'Work' : 'Break',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Style.orange,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
 
-                  // Cycle indicator
-                  Text(
-                    'Cycle ${_viewModel.currentCycle} of ${_viewModel.cycles}',
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 40),
+                      // Cycle indicator
+                      Text(
+                        'Cycle ${_viewModel.currentCycle} of ${_viewModel.cycles}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 40),
 
-                  // Circular progress bar
-                  Center(
-                    child: SizedBox(
-                      width: 280,
-                      height: 280,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Progress outline circle
-                          SizedBox(
-                            width: 280,
-                            height: 280,
-                            child: CircularProgressIndicator(
-                              value: _viewModel.progress,
-                              strokeWidth: 8,
-                              strokeCap: StrokeCap.round,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                _viewModel.isWorkPhase
-                                    ? Style.orange
-                                    : Colors.green,
-                              ),
-                              backgroundColor: Colors.grey[300],
-                            ),
-                          ),
-                          // Center content - timer display and buttons
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                      // Circular progress bar
+                      Center(
+                        child: SizedBox(
+                          width: 280,
+                          height: 280,
+                          child: Stack(
+                            alignment: Alignment.center,
                             children: [
-                              if (_viewModel.isWorkPhase) ...[
-                                Text(
-                                  _viewModel.formattedTime,
-                                  style: TextStyle(
-                                    fontSize: 64,
-                                    fontWeight: FontWeight.bold,
-                                    color: Style.textColor,
+                              // Progress outline circle
+                              SizedBox(
+                                width: 280,
+                                height: 280,
+                                child: CircularProgressIndicator(
+                                  value: _viewModel.progress,
+                                  strokeWidth: 8,
+                                  strokeCap: StrokeCap.round,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    _viewModel.isWorkPhase
+                                        ? Style.orange
+                                        : Colors.green,
                                   ),
+                                  backgroundColor: Colors.grey[300],
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Work Time',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                              ],
-                              // Control buttons inside circle
-                              Row(
+                              ),
+                              // Center content - timer display and buttons
+                              Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  FloatingActionButton(
-                                    mini: true,
-                                    onPressed: _viewModel.isRunning
-                                        ? _viewModel.pauseTimer
-                                        : _viewModel.resumeTimer,
-                                    backgroundColor: Style.orange,
-                                    child: Icon(
-                                      _viewModel.isRunning
-                                          ? Icons.pause
-                                          : Icons.play_arrow,
-                                      color: Colors.white,
+                                  if (_viewModel.isWorkPhase) ...[
+                                    Text(
+                                      _viewModel.formattedTime,
+                                      style: TextStyle(
+                                        fontSize: 64,
+                                        fontWeight: FontWeight.bold,
+                                        color: Style.textColor,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  FloatingActionButton(
-                                    mini: true,
-                                    onPressed: () {
-                                      if (_viewModel.isWorkPhase) {
-                                        // During work - show break dialog
-                                        _viewModel.pauseTimer();
-                                        showDialog(
-                                          context: context,
-                                          barrierDismissible: false,
-                                          builder: (context) => _BreakDialog(
-                                            viewModel: _viewModel,
-                                            onContinue: () {
-                                              _viewModel
-                                                  .moveToNextPhaseFromDialog();
-                                            },
-                                          ),
-                                        );
-                                      } else {
-                                        // During break - skip to next phase
-                                        _viewModel.skipPhase();
-                                      }
-                                    },
-                                    backgroundColor: Colors.white,
-                                    child: Icon(
-                                      Icons.skip_next,
-                                      color: Style.orange,
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Work Time',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey,
+                                      ),
                                     ),
+                                    const SizedBox(height: 24),
+                                  ],
+                                  // Control buttons inside circle
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      FloatingActionButton(
+                                        mini: true,
+                                        onPressed: _viewModel.isRunning
+                                            ? _viewModel.pauseTimer
+                                            : _viewModel.resumeTimer,
+                                        backgroundColor: Style.orange,
+                                        child: Icon(
+                                          _viewModel.isRunning
+                                              ? Icons.pause
+                                              : Icons.play_arrow,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      FloatingActionButton(
+                                        mini: true,
+                                        onPressed: () {
+                                          if (_viewModel.isWorkPhase) {
+                                            // During work - show break dialog
+                                            _viewModel.pauseTimer();
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible: false,
+                                              builder: (context) => _BreakDialog(
+                                                viewModel: _viewModel,
+                                                onContinue: () {
+                                                  _viewModel
+                                                      .moveToNextPhaseFromDialog();
+                                                },
+                                              ),
+                                            );
+                                          } else {
+                                            // During break - skip to next phase
+                                            _viewModel.skipPhase();
+                                          }
+                                        },
+                                        backgroundColor: Colors.white,
+                                        child: Icon(
+                                          Icons.skip_next,
+                                          color: Style.orange,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                // Bottom image
+                SvgPicture.asset('assets/images/YuccaWork.svg', height: 350),
+              ],
             ),
-            // Bottom image
-            SvgPicture.asset('assets/images/yuccawork.svg', height: 350),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
