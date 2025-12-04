@@ -29,7 +29,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final List<Widget> _pages = const [
     Home(),        // Your timer page
-    Journal(),     // Your journal page
+    Summary(),     // Your journal page
     Profile(), 
     Minigame(),    // Create this page
   ];

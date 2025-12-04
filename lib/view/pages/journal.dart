@@ -13,7 +13,6 @@ class _JournalState extends State<Journal> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
 
-  // Theme colors based on your reference "Work Mode" (Orange)
   final Color _themeColor = Colors.deepOrange;
   final Color? _backgroundColor = Colors.deepOrange[50];
 
