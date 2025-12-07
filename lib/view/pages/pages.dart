@@ -1,4 +1,4 @@
-import 'dart:math' show Random;
+import 'dart:math' show Random, min;
 
 import 'package:flutter/material.dart';
 import 'dart:async';
