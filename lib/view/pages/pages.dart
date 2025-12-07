@@ -12,6 +12,7 @@ part 'journal.dart';
 part 'profile.dart';
 part 'minigame.dart';
 part 'wordlepage.dart';
+part "memorygamepage.dart";
 part 'summary.dart';
 part 'journalHistory.dart';
 part 'timerSettingsPage.dart';

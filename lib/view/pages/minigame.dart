@@ -44,10 +44,10 @@ class _MinigameState extends State<Minigame> {
               title: "Memory Game",
               image: "assets/minigames/memory.png",
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (_) => const MemoryGamePage()),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MemoryGamePage()),
+                );
               },
             ),
 
