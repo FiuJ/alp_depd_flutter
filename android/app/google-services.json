@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "58332947068",
+    "firebase_url": "https://alp-depd-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "alp-depd",
+    "storage_bucket": "alp-depd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:58332947068:android:cc28dc465c2520d2e3dff9",
+        "android_client_info": {
+          "package_name": "com.example.alp_depd_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdmyk-StoWElTsqTHi-fOcHACL144dcg0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

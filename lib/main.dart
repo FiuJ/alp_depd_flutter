@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:alp_depd_flutter/view/pages/pages.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+
+void main() async {
+  await Supabase.initialize(
+    url: 'https://tkwbvuqxcyrfiknqmwlu.supabase.co',
+    anonKey: 'sb_publishable_juPtc5Zfz--0EkoDpX0GYg_s6Uevr3V',
+  );
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
