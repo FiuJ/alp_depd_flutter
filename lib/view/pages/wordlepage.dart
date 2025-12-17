@@ -188,7 +188,9 @@ class _WordlePageState extends State<WordlePage> {
     if (!matched) {
       Future.delayed(const Duration(milliseconds: 150), () {
         setState(() {
-          for (var p in currentPath) tempSelected[p.dx.toInt()][p.dy.toInt()] = false;
+          for (var p in currentPath) {
+            tempSelected[p.dx.toInt()][p.dy.toInt()] = false;
+          }
           currentPath.clear();
           dragDirection = null;
         });
@@ -269,7 +271,7 @@ class _WordlePageState extends State<WordlePage> {
                 final tileSize = (available - totalGap) / gridSize;
 
                 return Center(
-                  child: Container(
+                  child: SizedBox(
                     width: tileSize * gridSize + totalGap,
                     height: tileSize * gridSize + totalGap,
                     key: _gridKey,

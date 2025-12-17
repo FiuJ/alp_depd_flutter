@@ -9,16 +9,7 @@ class MemoryGamePage extends StatefulWidget {
 
 class _MemoryGamePageState extends State<MemoryGamePage> {
   // Daftar icon/gambar yang ingin dipasangkan
-  final List<String> images = [
-    "❤️",
-    "🐶",
-    "🍊",
-    "🐟",
-    "⭐",
-    "🍎",
-    "🍉",
-    "🦊",
-  ];
+  final List<String> images = ["❤️", "🐶", "🍊", "🐟", "⭐", "🍎", "🍉", "🦊"];
 
   late List<_CardModel> cards;
 
@@ -81,10 +72,7 @@ class _MemoryGamePageState extends State<MemoryGamePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.orange,
-        title: const Text(
-          "Memory Game",
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text("Memory Game", style: TextStyle(color: Colors.white)),
         centerTitle: true,
       ),
       body: Center(
@@ -110,24 +98,21 @@ class _MemoryGamePageState extends State<MemoryGamePage> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 350),
         decoration: BoxDecoration(
-          color: card.isFlipped || card.isMatched ? Colors.orange : Colors.grey.shade300,
+          color: card.isFlipped || card.isMatched
+              ? Colors.orange
+              : Colors.grey.shade300,
           borderRadius: BorderRadius.circular(14),
           boxShadow: const [
             BoxShadow(
               color: Colors.black26,
               blurRadius: 4,
               offset: Offset(1, 2),
-            )
+            ),
           ],
         ),
         alignment: Alignment.center,
         child: card.isFlipped || card.isMatched
-            ? Text(
-                card.image,
-                style: const TextStyle(
-                  fontSize: 36,
-                ),
-              )
+            ? Text(card.image, style: const TextStyle(fontSize: 36))
             : const Icon(
                 Icons.face_6_outlined,
                 size: 32,
@@ -141,12 +126,8 @@ class _MemoryGamePageState extends State<MemoryGamePage> {
 // Model kartu
 class _CardModel {
   final String image;
-  bool isFlipped;
-  bool isMatched;
+  late bool isFlipped;
+  late bool isMatched;
 
-  _CardModel({
-    required this.image,
-    this.isFlipped = false,
-    this.isMatched = false,
-  });
+  _CardModel({required this.image});
 }

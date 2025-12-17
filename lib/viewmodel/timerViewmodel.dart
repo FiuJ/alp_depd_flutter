@@ -1,65 +1,70 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../models/assignmentModel.dart';
+import '../repository/assignmentRepository.dart';
 
 // ViewModel untuk mengelola data dan state Timer
 class Timerviewmodel with ChangeNotifier {
-  late Timer _timer;
+  // Timer State
+  Timer? _timer;
   int _remainingSeconds = 0;
   int _totalSeconds = 0;
   int _currentCycle = 1;
   bool _isWorkPhase = true;
   bool _isRunning = false;
+
+  // Configuration (Default values)
   double _workDuration = 25.0;
   double _breakDuration = 5.0;
   int _cycles = 4;
+
+  // Repositories and Selection
+  final AssignmentRepository _repository = AssignmentRepository();
+  final List<Assignment> _selectedAssignments = [];
 
   // Callbacks
   VoidCallback? _onPhaseComplete;
   VoidCallback? _onAllCyclesComplete;
 
-  // Getters
-  int get remainingSeconds => _remainingSeconds;
-  int get totalSeconds => _totalSeconds;
-  int get currentCycle => _currentCycle;
-  bool get isWorkPhase => _isWorkPhase;
-  bool get isRunning => _isRunning;
+  // --- Getters ---
+  // REQUIRED: Added these so TimerPage can read the values
   double get workDuration => _workDuration;
   double get breakDuration => _breakDuration;
+
+  int get remainingSeconds => _remainingSeconds;
+  int get currentCycle => _currentCycle;
   int get cycles => _cycles;
+  bool get isWorkPhase => _isWorkPhase;
+  bool get isRunning => _isRunning;
   String get formattedTime => _formatTime(_remainingSeconds);
-  double get progress => _getProgress();
+  double get progress => _totalSeconds > 0
+      ? (_totalSeconds - _remainingSeconds) / _totalSeconds
+      : 0;
+  List<Assignment> get selectedAssignments => _selectedAssignments;
 
-  // Setters
-  void setWorkDuration(double value) {
-    _workDuration = value;
+  // --- Selection Logic ---
+
+  void toggleSelection(Assignment assignment) {
+    final index = _selectedAssignments.indexWhere((a) => a.id == assignment.id);
+    if (index != -1) {
+      _selectedAssignments.removeAt(index);
+    } else {
+      _selectedAssignments.add(assignment);
+    }
     notifyListeners();
   }
 
-  void setBreakDuration(double value) {
-    _breakDuration = value;
-    notifyListeners();
-  }
+  bool isSelected(String id) => _selectedAssignments.any((a) => a.id == id);
 
-  void setCycles(int value) {
-    _cycles = value;
-    notifyListeners();
-  }
+  void setPhaseCompleteCallback(VoidCallback callback) =>
+      _onPhaseComplete = callback;
+  void setAllCyclesCompleteCallback(VoidCallback callback) =>
+      _onAllCyclesComplete = callback;
 
-  void setPhaseCompleteCallback(VoidCallback callback) {
-    _onPhaseComplete = callback;
-  }
-
-  void setAllCyclesCompleteCallback(VoidCallback callback) {
-    _onAllCyclesComplete = callback;
-  }
-
-  // Initialize timer with durations
   void initialize(double workDuration, double breakDuration, int cycles) {
     _workDuration = workDuration;
     _breakDuration = breakDuration;
     _cycles = cycles;
-    _remainingSeconds = 0;
-    _totalSeconds = 0;
     _currentCycle = 1;
     _isWorkPhase = true;
     _isRunning = false;
@@ -67,31 +72,56 @@ class Timerviewmodel with ChangeNotifier {
   }
 
   void _startPhase() {
-    _totalSeconds = _isWorkPhase
-        ? (_workDuration * 60).toInt()
-        : (_breakDuration * 60).toInt();
+    _totalSeconds =
+        (_isWorkPhase ? _workDuration : _breakDuration).toInt() * 60;
     _remainingSeconds = _totalSeconds;
     _startTimer();
   }
 
   void _startTimer() {
     _isRunning = true;
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {
         _remainingSeconds--;
         notifyListeners();
       } else {
-        _timer.cancel();
+        _timer?.cancel();
         _isRunning = false;
-        _showPhaseComplete();
-        notifyListeners();
+        _handlePhaseEnd();
       }
     });
   }
 
+  void _handlePhaseEnd() {
+    if (_isWorkPhase) {
+      _isWorkPhase = false;
+      notifyListeners();
+      _onPhaseComplete?.call();
+    } else {
+      _moveToNextPhase();
+    }
+  }
+
+  void _moveToNextPhase() {
+    if (_currentCycle < _cycles) {
+      _currentCycle++;
+      _isWorkPhase = true;
+      _startPhase();
+    } else {
+      _onAllCyclesComplete?.call();
+      resetTimer();
+    }
+    notifyListeners();
+  }
+
+  void moveToNextPhaseFromDialog() {
+    _moveToNextPhase();
+  }
+
   void pauseTimer() {
     if (_isRunning) {
-      _timer.cancel();
+      _timer?.cancel();
       _isRunning = false;
       notifyListeners();
     }
@@ -104,57 +134,13 @@ class Timerviewmodel with ChangeNotifier {
   }
 
   void skipPhase() {
-    _timer.cancel();
+    _timer?.cancel();
     _isRunning = false;
-    _moveToNextPhase();
-    notifyListeners();
-  }
-
-  void _showPhaseComplete() {
-    if (_isWorkPhase) {
-      _isWorkPhase = false;
-      _onPhaseComplete?.call();
-    } else {
-      _moveToNextPhase();
-    }
-  }
-
-  void _moveToNextPhase() {
-    if (_isWorkPhase) {
-      _isWorkPhase = false;
-      _showPhaseComplete();
-    } else {
-      if (_currentCycle < _cycles) {
-        _currentCycle++;
-        _isWorkPhase = true;
-        _startPhase();
-      } else {
-        // All cycles complete
-        // notify listener that all cycles are complete (UI can pop)
-        _onAllCyclesComplete?.call();
-        resetTimer();
-      }
-    }
-    notifyListeners();
-  }
-
-  void moveToNextPhaseFromDialog() {
-    _moveToNextPhase();
-  }
-
-  String _formatTime(int seconds) {
-    int minutes = seconds ~/ 60;
-    int secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-  }
-
-  double _getProgress() {
-    return _totalSeconds > 0
-        ? (_totalSeconds - _remainingSeconds) / _totalSeconds
-        : 0;
+    _handlePhaseEnd();
   }
 
   void resetTimer() {
+    _timer?.cancel();
     _remainingSeconds = 0;
     _totalSeconds = 0;
     _currentCycle = 1;
@@ -163,10 +149,27 @@ class Timerviewmodel with ChangeNotifier {
     notifyListeners();
   }
 
+  // --- Database Interaction ---
+
+  Future<void> finalizeSession(Map<String, double> progressUpdates) async {
+    if (progressUpdates.isNotEmpty) {
+      await _repository.updateBulkProgress(progressUpdates);
+    }
+    _selectedAssignments.clear();
+    notifyListeners();
+  }
+
+  // --- Utilities ---
+
+  String _formatTime(int seconds) {
+    int minutes = seconds ~/ 60;
+    int secs = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+  }
+
   @override
   void dispose() {
-    if (_isRunning) {
-      _timer.cancel();
-    }
+    _timer?.cancel();
+    super.dispose();
   }
 }

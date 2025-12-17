@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:alp_depd_flutter/view/pages/pages.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart'; //
+import 'package:alp_depd_flutter/viewmodel/timerViewmodel.dart';
+import 'shared/shared.dart';
 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
-void main() async {
   await Supabase.initialize(
-    url: 'https://tkwbvuqxcyrfiknqmwlu.supabase.co',
-    anonKey: 'sb_publishable_juPtc5Zfz--0EkoDpX0GYg_s6Uevr3V',
+    url: Const.supabaseUrl,
+    anonKey: Const.supabaseAnonKey,
   );
-  runApp(const MyApp());
+
+  runApp(
+    // Wrap MyApp with MultiProvider to provide state globally
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => Timerviewmodel())],
+      child: const MyApp(),
+    ),
+  );
 }
 
+final supabase = Supabase.instance.client;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
