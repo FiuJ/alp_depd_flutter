@@ -4,6 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
   await Supabase.initialize(
     url: 'https://tkwbvuqxcyrfiknqmwlu.supabase.co',
     anonKey: 'sb_publishable_juPtc5Zfz--0EkoDpX0GYg_s6Uevr3V',
@@ -17,9 +19,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainNavigation(),
+      home: Supabase.instance.client.auth.currentSession != null 
+          ? const MainNavigation() 
+          : const LoginPage(),
     );
   }
 }
