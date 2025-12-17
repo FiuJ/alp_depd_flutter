@@ -3,7 +3,7 @@ class Assignment {
   final String userId;
   final String title;
   final String description;
-  final double progress;
+  final int progress;
   final DateTime dueDate;
 
   Assignment({
@@ -17,11 +17,16 @@ class Assignment {
 
   factory Assignment.fromMap(Map<String, dynamic> map) {
     return Assignment(
-      id: map['id'],
-      userId: map['user_id'],
-      title: map['title'],
+      // Use .toString() to prevent the int-to-String subtype error
+      id: map['id'].toString(),
+      userId: map['user_id'].toString(),
+
+      title: map['title'] ?? '',
       description: map['description'] ?? '',
-      progress: (map['progress'] ?? 0.0).toDouble(),
+
+      // Explicitly cast to int to ensure it matches your class property
+      progress: (map['progress'] as num?)?.toInt() ?? 0,
+
       dueDate: DateTime.parse(map['due_date']),
     );
   }

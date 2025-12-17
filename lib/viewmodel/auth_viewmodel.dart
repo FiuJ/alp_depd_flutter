@@ -1,3 +1,4 @@
+import 'package:alp_depd_flutter/main.dart';
 import 'package:alp_depd_flutter/model/model.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -8,8 +9,6 @@ class AuthViewModel extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-
-  final _supabase = Supabase.instance.client;
 
   // Sign Up (Register)
   Future<bool> signUp({
@@ -22,7 +21,7 @@ class AuthViewModel extends ChangeNotifier {
 
     try {
       // 1. Create Auth User
-      final AuthResponse response = await _supabase.auth.signUp(
+      final AuthResponse response = await supabase.auth.signUp(
         email: email,
         password: password,
       );
@@ -38,7 +37,7 @@ class AuthViewModel extends ChangeNotifier {
         createdAt: DateTime.now(),
       );
 
-      await _supabase.from('profiles').insert(newProfile.toMap());
+      await supabase.from('profiles').insert(newProfile.toMap());
 
       _setLoading(false);
       return true;
@@ -50,15 +49,12 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   // Sign In (Login)
-  Future<bool> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> signIn({required String email, required String password}) async {
     _setLoading(true);
     _errorMessage = null;
 
     try {
-      final AuthResponse response = await _supabase.auth.signInWithPassword(
+      final AuthResponse response = await supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
@@ -78,7 +74,7 @@ class AuthViewModel extends ChangeNotifier {
 
   // Sign Out
   Future<void> signOut() async {
-    await _supabase.auth.signOut();
+    await supabase.auth.signOut();
     notifyListeners();
   }
 

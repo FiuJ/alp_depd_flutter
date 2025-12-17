@@ -1,3 +1,5 @@
+import 'package:alp_depd_flutter/viewmodel/assignmentViewmodel.dart';
+import 'package:alp_depd_flutter/viewmodel/auth_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:alp_depd_flutter/view/pages/pages.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -6,6 +8,7 @@ import 'package:provider/provider.dart'; //
 import 'package:alp_depd_flutter/viewmodel/timerViewmodel.dart';
 import 'shared/shared.dart';
 
+late final SupabaseClient supabase;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
@@ -15,16 +18,19 @@ Future<void> main() async {
     anonKey: Const.supabaseAnonKey,
   );
 
+  supabase = Supabase.instance.client;
   runApp(
     // Wrap MyApp with MultiProvider to provide state globally
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => Timerviewmodel())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => Timerviewmodel()),
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => AssignmentViewModel()),
+      ],
       child: const MyApp(),
     ),
   );
 }
-
-final supabase = Supabase.instance.client;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

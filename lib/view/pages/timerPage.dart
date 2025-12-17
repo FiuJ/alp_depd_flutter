@@ -5,8 +5,6 @@ class TimerPage extends StatefulWidget {
   final double breakDuration;
   final int cycles;
 
-  // Note: Removed assignmentName and initialProgress as they are now
-  // managed via the ViewModel's selection list.
   const TimerPage({
     super.key,
     required this.workDuration,
@@ -22,44 +20,47 @@ class _TimerPageState extends State<TimerPage> {
   late Timerviewmodel _viewModel;
 
   @override
-  void initState() {
-    super.initState();
-    // Assuming you are using a provider or a singleton.
-    // If not, ensure the ViewModel instance is the same one used in the selection page.
-    _viewModel = Timerviewmodel();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
+    // 1. ACCESS GLOBAL PROVIDER: Do not use = Timerviewmodel() in initState
+    _viewModel = Provider.of<Timerviewmodel>(context, listen: false);
+
+    // 2. SET CALLBACKS: Ensure they are attached once
     _viewModel.setPhaseCompleteCallback(_showPhaseCompleteDialog);
+    _viewModel.setAllCyclesCompleteCallback(_handleAllCyclesComplete);
 
-    _viewModel.setAllCyclesCompleteCallback(() async {
-      if (mounted) {
-        // Show progress update if the user actually picked assignments
-        if (_viewModel.selectedAssignments.isNotEmpty) {
-          await showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => ProgressUpdateDialog(
-              assignments: _viewModel.selectedAssignments,
-              onSave: (progressUpdates) async {
-                await _viewModel.finalizeSession(progressUpdates);
-                if (mounted) {
-                  Navigator.pop(context); // Close Dialog
-                  Navigator.pop(context); // Return to Settings
-                }
-              },
-            ),
-          );
-        } else {
-          // If no assignments selected, just exit
-          Navigator.pop(context);
-        }
+    // 3. INITIALIZE: Setup data only if the timer is fresh
+    if (!_viewModel.isRunning && _viewModel.currentCycle == 1) {
+      _viewModel.initialize(
+        widget.workDuration,
+        widget.breakDuration,
+        widget.cycles,
+      );
+    }
+  }
+
+  void _handleAllCyclesComplete() async {
+    if (mounted) {
+      if (_viewModel.selectedAssignments.isNotEmpty) {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => ProgressUpdateDialog(
+            assignments: _viewModel.selectedAssignments,
+            onSave: (progressUpdates) async {
+              await _viewModel.finalizeSession(progressUpdates);
+              if (mounted) {
+                Navigator.pop(context); // Close Dialog
+                Navigator.pop(context); // Return to Settings
+              }
+            },
+          ),
+        );
+      } else {
+        Navigator.pop(context);
       }
-    });
-
-    _viewModel.initialize(
-      widget.workDuration,
-      widget.breakDuration,
-      widget.cycles,
-    );
+    }
   }
 
   void _showPhaseCompleteDialog() {
@@ -68,16 +69,15 @@ class _TimerPageState extends State<TimerPage> {
       barrierDismissible: false,
       builder: (context) => _BreakDialog(
         viewModel: _viewModel,
-        onContinue: () {
-          _viewModel.moveToNextPhaseFromDialog();
-        },
+        onContinue: () => _viewModel.moveToNextPhaseFromDialog(),
       ),
     );
   }
 
   @override
   void dispose() {
-    _viewModel.dispose();
+    // 4. CLEANUP: Reset timer but do NOT dispose a global provider
+    _viewModel.resetTimer();
     super.dispose();
   }
 
@@ -95,7 +95,6 @@ class _TimerPageState extends State<TimerPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Phase indicator (Work/Break)
                       Text(
                         _viewModel.isWorkPhase ? 'Work' : 'Break',
                         style: TextStyle(
@@ -105,8 +104,6 @@ class _TimerPageState extends State<TimerPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-
-                      // Cycle counter
                       Text(
                         'Cycle ${_viewModel.currentCycle} of ${_viewModel.cycles}',
                         style: const TextStyle(
@@ -114,10 +111,7 @@ class _TimerPageState extends State<TimerPage> {
                           color: Colors.grey,
                         ),
                       ),
-
                       const SizedBox(height: 20),
-
-                      // NEW: Selected Assignments Display
                       if (_viewModel.selectedAssignments.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -130,10 +124,7 @@ class _TimerPageState extends State<TimerPage> {
                             ),
                           ),
                         ),
-
                       const SizedBox(height: 40),
-
-                      // Circular Progress Bar
                       Center(
                         child: Stack(
                           alignment: Alignment.center,
@@ -169,6 +160,7 @@ class _TimerPageState extends State<TimerPage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     FloatingActionButton(
+                                      heroTag: "timer_play_pause", // UNIQUE TAG
                                       mini: true,
                                       elevation: 2,
                                       onPressed: _viewModel.isRunning
@@ -184,6 +176,7 @@ class _TimerPageState extends State<TimerPage> {
                                     ),
                                     const SizedBox(width: 12),
                                     FloatingActionButton(
+                                      heroTag: "timer_skip", // UNIQUE TAG
                                       mini: true,
                                       elevation: 2,
                                       onPressed: () => _viewModel.skipPhase(),
@@ -203,7 +196,6 @@ class _TimerPageState extends State<TimerPage> {
                     ],
                   ),
                 ),
-                // Decorative Image
                 SvgPicture.asset('assets/images/YuccaWork.svg', height: 300),
               ],
             ),
@@ -214,86 +206,72 @@ class _TimerPageState extends State<TimerPage> {
   }
 }
 
-// --- Break Dialog ---
-class _BreakDialog extends StatefulWidget {
+// --- FIXED BREAK DIALOG ---
+class _BreakDialog extends StatelessWidget {
   final Timerviewmodel viewModel;
   final VoidCallback onContinue;
 
-  const _BreakDialog({required this.viewModel, required this.onContinue});
-
-  @override
-  State<_BreakDialog> createState() => _BreakDialogState();
-}
-
-class _BreakDialogState extends State<_BreakDialog> {
-  late Timer _breakTimer;
-  late int _remainingSeconds;
-
-  @override
-  void initState() {
-    super.initState();
-    _remainingSeconds = (widget.viewModel.breakDuration * 60).toInt();
-    _startBreakTimer();
-  }
-
-  void _startBreakTimer() {
-    _breakTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        setState(() {
-          if (_remainingSeconds > 0) {
-            _remainingSeconds--;
-          } else {
-            _breakTimer.cancel();
-            Navigator.pop(context);
-            widget.onContinue();
-          }
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _breakTimer.cancel();
-    super.dispose();
-  }
+  const _BreakDialog({
+    super.key,
+    required this.viewModel,
+    required this.onContinue,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Time to Break!'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Cycle ${widget.viewModel.currentCycle} of ${widget.viewModel.cycles}',
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+    return ListenableBuilder(
+      listenable: viewModel,
+      builder: (context, child) {
+        return AlertDialog(
+          title: const Text('Work Phase Complete!'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Cycle ${viewModel.currentCycle} of ${viewModel.cycles}',
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              const SizedBox(height: 24),
+              // Reactive countdown watching the ViewModel
+              Text(
+                viewModel.formattedTime,
+                style: TextStyle(
+                  fontSize: 56,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                viewModel.isRunning
+                    ? "Taking a break..."
+                    : "Ready for your break?",
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
-          Text(
-            '${(_remainingSeconds ~/ 60).toString().padLeft(2, '0')}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}',
-            style: TextStyle(
-              fontSize: 56,
-              fontWeight: FontWeight.bold,
-              color: Style.orange,
+          actions: [
+            if (!viewModel.isRunning)
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                onPressed:
+                    onContinue, // Correctly triggers _viewModel.moveToNextPhaseFromDialog()
+                child: const Text(
+                  'Start Break',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                viewModel
+                    .skipPhase(); // Skips break directly to next work phase
+              },
+              child: const Text('Skip Break'),
             ),
-          ),
-        ],
-      ),
-      actions: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Style.orange),
-          onPressed: () {
-            _breakTimer.cancel();
-            Navigator.pop(context);
-            widget.onContinue();
-          },
-          child: const Text(
-            'Skip Break',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
@@ -319,8 +297,10 @@ class _ProgressUpdateDialogState extends State<ProgressUpdateDialog> {
   @override
   void initState() {
     super.initState();
-    // Pre-populate with current progress from the model
-    _localProgress = {for (var a in widget.assignments) a.id: a.progress};
+    // 5. TYPE FIX: Convert the model's 'int' to 'double' for the Slider
+    _localProgress = {
+      for (var a in widget.assignments) a.id: a.progress.toDouble(),
+    };
   }
 
   @override
@@ -334,7 +314,6 @@ class _ProgressUpdateDialogState extends State<ProgressUpdateDialog> {
             mainAxisSize: MainAxisSize.min,
             children: widget.assignments.map((a) {
               return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     a.title,
@@ -345,14 +324,10 @@ class _ProgressUpdateDialogState extends State<ProgressUpdateDialog> {
                     min: 0,
                     max: 100,
                     activeColor: Style.orange,
-                    label: "${_localProgress[a.id]!.round()}%",
                     onChanged: (val) =>
                         setState(() => _localProgress[a.id] = val),
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text("${_localProgress[a.id]!.round()}%"),
-                  ),
+                  Text("${_localProgress[a.id]!.round()}%"),
                   const Divider(),
                 ],
               );

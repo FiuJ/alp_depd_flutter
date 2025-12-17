@@ -1,7 +1,6 @@
 part of 'pages.dart';
 
 class AssignmentListPage extends StatefulWidget {
-  // REMOVED: currentlySelected and onToggle parameters
   const AssignmentListPage({super.key});
 
   @override
@@ -13,11 +12,27 @@ class _AssignmentListPageState extends State<AssignmentListPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Access the central TimerViewModel
     final timerVM = Provider.of<Timerviewmodel>(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text('All Assignments'), elevation: 0),
+
+      // ADDED: Floating Action Button to navigate to the Form Page
+      floatingActionButton: FloatingActionButton(
+        heroTag: "add_assignment_btn",
+        backgroundColor: Colors.orange,
+        child: const Icon(Icons.add, color: Colors.white),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AssignmentFormPage()),
+          ).then((_) {
+            // Refresh the list when returning from the form
+            setState(() {});
+          });
+        },
+      ),
+
       body: FutureBuilder<List<Assignment>>(
         future: _repository.getAssignments(),
         builder: (context, snapshot) {
@@ -34,8 +49,6 @@ class _AssignmentListPageState extends State<AssignmentListPage> {
             itemCount: assignments.length,
             itemBuilder: (context, index) {
               final item = assignments[index];
-
-              // Use the ViewModel to check selection
               final isSelected = timerVM.isSelected(item.id);
 
               return Card(
@@ -51,7 +64,6 @@ class _AssignmentListPageState extends State<AssignmentListPage> {
                     color: isSelected ? Colors.green : Colors.orange,
                   ),
                   onTap: () {
-                    // Update the selection in the global ViewModel
                     timerVM.toggleSelection(item);
                   },
                 ),

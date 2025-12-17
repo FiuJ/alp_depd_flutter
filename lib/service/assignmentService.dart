@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:alp_depd_flutter/main.dart'; // Import your main.dart to access global 'supabase'
 
 class AssignmentService {
@@ -18,7 +20,7 @@ class AssignmentService {
     await supabase.from('assignments').insert(data);
   }
 
-  Future<void> updateAssignmentProgressRaw(String id, double progress) async {
+  Future<void> updateAssignmentProgressRaw(String id, int progress) async {
     await supabase
         .from('assignments')
         .update({'progress': progress})

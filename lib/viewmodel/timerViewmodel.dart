@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../models/assignmentModel.dart';
+import '../model/assignmentModel.dart';
 import '../repository/assignmentRepository.dart';
 
-// ViewModel untuk mengelola data dan state Timer
 class Timerviewmodel with ChangeNotifier {
-  // Timer State
   Timer? _timer;
   int _remainingSeconds = 0;
   int _totalSeconds = 0;
@@ -13,24 +11,19 @@ class Timerviewmodel with ChangeNotifier {
   bool _isWorkPhase = true;
   bool _isRunning = false;
 
-  // Configuration (Default values)
   double _workDuration = 25.0;
   double _breakDuration = 5.0;
   int _cycles = 4;
 
-  // Repositories and Selection
   final AssignmentRepository _repository = AssignmentRepository();
   final List<Assignment> _selectedAssignments = [];
 
-  // Callbacks
   VoidCallback? _onPhaseComplete;
   VoidCallback? _onAllCyclesComplete;
 
   // --- Getters ---
-  // REQUIRED: Added these so TimerPage can read the values
   double get workDuration => _workDuration;
   double get breakDuration => _breakDuration;
-
   int get remainingSeconds => _remainingSeconds;
   int get currentCycle => _currentCycle;
   int get cycles => _cycles;
@@ -43,7 +36,6 @@ class Timerviewmodel with ChangeNotifier {
   List<Assignment> get selectedAssignments => _selectedAssignments;
 
   // --- Selection Logic ---
-
   void toggleSelection(Assignment assignment) {
     final index = _selectedAssignments.indexWhere((a) => a.id == assignment.id);
     if (index != -1) {
@@ -61,6 +53,8 @@ class Timerviewmodel with ChangeNotifier {
   void setAllCyclesCompleteCallback(VoidCallback callback) =>
       _onAllCyclesComplete = callback;
 
+  // --- Timer Logic ---
+
   void initialize(double workDuration, double breakDuration, int cycles) {
     _workDuration = workDuration;
     _breakDuration = breakDuration;
@@ -68,7 +62,11 @@ class Timerviewmodel with ChangeNotifier {
     _currentCycle = 1;
     _isWorkPhase = true;
     _isRunning = false;
-    _startPhase();
+
+    // Prepare the first Work session time immediately
+    _totalSeconds = (_workDuration * 60).toInt();
+    _remainingSeconds = _totalSeconds;
+    notifyListeners();
   }
 
   void _startPhase() {
@@ -94,8 +92,16 @@ class Timerviewmodel with ChangeNotifier {
   }
 
   void _handlePhaseEnd() {
+    _timer?.cancel();
+    _isRunning = false;
+
     if (_isWorkPhase) {
       _isWorkPhase = false;
+
+      // FIX: Set the break time BEFORE calling the dialog so the UI is ready
+      _totalSeconds = (_breakDuration * 60).toInt();
+      _remainingSeconds = _totalSeconds;
+
       notifyListeners();
       _onPhaseComplete?.call();
     } else {
@@ -109,14 +115,15 @@ class Timerviewmodel with ChangeNotifier {
       _isWorkPhase = true;
       _startPhase();
     } else {
+      _isRunning = false;
+      _timer?.cancel();
       _onAllCyclesComplete?.call();
-      resetTimer();
     }
     notifyListeners();
   }
 
   void moveToNextPhaseFromDialog() {
-    _moveToNextPhase();
+    _startPhase(); // Starts the break or next work session
   }
 
   void pauseTimer() {
@@ -153,13 +160,17 @@ class Timerviewmodel with ChangeNotifier {
 
   Future<void> finalizeSession(Map<String, double> progressUpdates) async {
     if (progressUpdates.isNotEmpty) {
-      await _repository.updateBulkProgress(progressUpdates);
-    }
-    _selectedAssignments.clear();
-    notifyListeners();
-  }
+      // FIX: Ensure lowercase 'int' is used for DB compatibility
+      final Map<String, int> finalData = progressUpdates.map(
+        (key, value) => MapEntry(key, value.toInt()),
+      );
 
-  // --- Utilities ---
+      await _repository.updateBulkProgress(finalData);
+    }
+
+    _selectedAssignments.clear();
+    resetTimer();
+  }
 
   String _formatTime(int seconds) {
     int minutes = seconds ~/ 60;
