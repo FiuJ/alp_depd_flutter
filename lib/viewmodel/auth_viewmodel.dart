@@ -6,7 +6,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthViewModel extends ChangeNotifier {
 
-  final SupabaseClient supabase = Supabase.instance.client;
+  // Do not access Supabase.instance at construction time; it may not be
+  // initialized (we run without initialization for web in some flows).
+  // Instead, access the client inside methods and handle the case where
+  // Supabase has not been initialized yet.
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -24,8 +27,10 @@ class AuthViewModel extends ChangeNotifier {
     _errorMessage = null;
 
     try {
+      final client = Supabase.instance.client;
+
       // 1. Create Auth User
-      final AuthResponse response = await supabase.auth.signUp(
+      final AuthResponse response = await client.auth.signUp(
         email: email,
         password: password,
       );
@@ -41,7 +46,7 @@ class AuthViewModel extends ChangeNotifier {
         createdAt: DateTime.now(),
       );
 
-      await supabase.from('profiles').insert(newProfile.toMap());
+      await client.from('profiles').insert(newProfile.toMap());
 
       _setLoading(false);
       return true;
@@ -58,7 +63,9 @@ class AuthViewModel extends ChangeNotifier {
     _errorMessage = null;
 
     try {
-      final AuthResponse response = await supabase.auth.signInWithPassword(
+      final client = Supabase.instance.client;
+
+      final AuthResponse response = await client.auth.signInWithPassword(
         email: email,
         password: password,
       );
@@ -78,7 +85,12 @@ class AuthViewModel extends ChangeNotifier {
 
   // Sign Out
   Future<void> signOut() async {
-    await supabase.auth.signOut();
+    try {
+      final client = Supabase.instance.client;
+      await client.auth.signOut();
+    } catch (_) {
+      // Supabase not initialized — nothing to do
+    }
     notifyListeners();
   }
 
