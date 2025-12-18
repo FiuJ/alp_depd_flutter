@@ -6,6 +6,7 @@ import 'constants/colors.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/timer_screen.dart';
 import 'screens/profile_screen.dart';
+import 'view/pages/pages.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,9 +32,31 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         useMaterial3: true,
       ),
-      home: const MainAppScreen(),
+      home: const AuthGate(),
       debugShowCheckedModeBanner: false,
     );
+  }
+}
+
+/// AuthGate: Determines whether to show login or main app based on auth state.
+/// For now, we default to LoginPage since supabase is not initialized.
+/// Once Supabase is properly initialized, check `Supabase.instance.client.auth.currentSession`.
+class AuthGate extends StatefulWidget {
+  const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: Uncomment and use this once Supabase is initialized in main()
+    // final session = Supabase.instance.client.auth.currentSession;
+    // return session != null ? const MainAppScreen() : const LoginPage();
+    
+    // For now, show LoginPage by default
+    return const LoginPage();
   }
 }
 
