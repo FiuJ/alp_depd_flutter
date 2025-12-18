@@ -22,3 +22,11 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+
+plugins {
+    // id("dev.flutter.flutter-plugin-loader") version "1.0.0"
+    id("com.android.application") apply false
+    id("com.android.library") apply false
+    id("org.jetbrains.kotlin.android") apply false
+}

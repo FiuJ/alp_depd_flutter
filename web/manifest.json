@@ -1,6 +1,6 @@
 {
-    "name": "alp_depd",
-    "short_name": "alp_depd",
+    "name": "alp_depd_flutter",
+    "short_name": "alp_depd_flutter",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

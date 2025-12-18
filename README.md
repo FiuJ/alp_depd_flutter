@@ -1,4 +1,4 @@
-# alp_depd
+# alp_depd_flutter
 
 A new Flutter project.
 
@@ -15,5 +15,20 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-#run terminal
--flutter pub add image_picker
+## Quick setup notes
+
+- Package name set to `alp_depd_flutter` (merged to match `origin/main`).
+- This project uses `image_picker` and optional Supabase/provider packages. Run `flutter pub get` after pulling.
+- If you plan to use environment variables, add a `.env` file at the project root.
+
+Run these once locally:
+
+```powershell
+flutter pub get
+```
+
+To add `image_picker` (if needed):
+
+```powershell
+flutter pub add image_picker
+```
