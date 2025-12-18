@@ -32,7 +32,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         useMaterial3: true,
       ),
-      home: const AuthGate(),
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/': (context) => const AuthGate(),
+        '/main': (context) => const MainAppScreen(),
+      },
       debugShowCheckedModeBanner: false,
     );
   }
