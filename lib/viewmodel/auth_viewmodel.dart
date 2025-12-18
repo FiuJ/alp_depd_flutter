@@ -1,9 +1,13 @@
-import 'package:alp_depd_flutter/main.dart';
+// import 'package:alp_depd_flutter/main.dart';
 import 'package:alp_depd_flutter/model/model.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+// import 'package:alp_depd_flutter/model/profile_model.dart';
 
 class AuthViewModel extends ChangeNotifier {
+
+  final SupabaseClient supabase = Supabase.instance.client;
+
   bool _isLoading = false;
   String? _errorMessage;
 

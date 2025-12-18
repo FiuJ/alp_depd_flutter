@@ -1,3 +1,4 @@
+import 'package:alp_depd_flutter/main.dart';
 import 'package:alp_depd_flutter/model/model.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,7 +20,7 @@ class JournalViewModel extends ChangeNotifier {
     _errorMessage = null;
 
     try {
-      final user = Supabase.instance.client.auth.currentUser;
+      final user = supabase.auth.currentUser;
 
       if (user == null) {
         throw 'User not logged in';
@@ -34,7 +35,7 @@ class JournalViewModel extends ChangeNotifier {
       );
 
       // Insert into 'journal' table
-      await Supabase.instance.client
+      await supabase
           .from('journal') // Matches table name in screenshot
           .insert(newJournal.toMap());
 
@@ -52,11 +53,11 @@ class JournalViewModel extends ChangeNotifier {
     _errorMessage = null;
 
     try {
-      final user = Supabase.instance.client.auth.currentUser;
+      final user = supabase.auth.currentUser;
       if (user == null) throw 'User not logged in';
 
       // Fetch from Supabase
-      final List<dynamic> response = await Supabase.instance.client
+      final List<dynamic> response = await supabase
           .from('journal')
           .select()
           .eq('user_id', user.id)
