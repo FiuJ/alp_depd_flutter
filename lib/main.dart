@@ -191,4 +191,11 @@ class _MainAppScreenState extends State<MainAppScreen> {
 //     );
 //   }
 // }
-\n// MainNavigation shim\nclass MainNavigation extends StatelessWidget { const MainNavigation({super.key}); @override Widget build(BuildContext context) => const MainAppScreen(); }
+
+// MainNavigation shim: maps to UI main screen for compatibility with login pages
+class MainNavigation extends StatelessWidget {
+  const MainNavigation({super.key});
+
+  @override
+  Widget build(BuildContext context) => const MainAppScreen();
+}
