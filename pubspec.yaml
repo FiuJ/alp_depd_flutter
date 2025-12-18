@@ -55,6 +55,7 @@ flutter:
   assets:
     - assets/images/Yucca.svg
     - assets/images/YuccaWork.svg
+    - assets/images/YuccaHome.svg
     - .env
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

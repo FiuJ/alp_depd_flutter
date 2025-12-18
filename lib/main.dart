@@ -57,8 +57,8 @@ class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = const [
+    Summary(),
     Timersettingspage(),
-    Summary(), // Your journal page
     Profile(),
     Minigame(), // Create this page
     // Your timer page
@@ -81,8 +81,8 @@ class _MainNavigationState extends State<MainNavigation> {
         unselectedItemColor: Colors.grey,
 
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.timer), label: "Timer"),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: "Journal"),
+          BottomNavigationBarItem(icon: Icon(Icons.timer), label: "Pomodoro"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
           BottomNavigationBarItem(icon: Icon(Icons.games), label: "Minigame"),
         ],
