@@ -1,131 +1,72 @@
-<<<<<<< HEAD
 import 'package:flutter/material.dart';
-import 'constants/theme.dart'; // Pastikan path ini sesuai
-import 'constants/colors.dart'; // Import colors untuk styling navbar
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'constants/theme.dart';
+import 'constants/colors.dart';
 
-// Import screen yang benar
 import 'screens/dashboard_screen.dart';
 import 'screens/timer_screen.dart';
-import 'screens/profile_screen.dart'; // Ubah dari updateProfile menjadi profile_screen
+import 'screens/profile_screen.dart';
 
 void main() {
-  import 'package:flutter/material.dart';
-  import 'constants/theme.dart';
-  import 'constants/colors.dart';
+  runApp(const MyApp());
+}
 
-  import 'screens/dashboard_screen.dart';
-  import 'screens/timer_screen.dart';
-  import 'screens/profile_screen.dart';
+// Global supabase client placeholder. Some files (from origin/main)
+// import `package:alp_depd_flutter/main.dart` and expect this symbol.
+// If you want full Supabase functionality, initialize this in `main()`
+// using `Supabase.initialize(...)` and set `supabase = Supabase.instance.client;`.
+late final SupabaseClient supabase;
 
-  void main() {
-    runApp(const MyApp());
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'DEPD - Daily Wellness',
+      theme: ThemeData(
+        primaryColor: AppColors.primary,
+        scaffoldBackgroundColor: Colors.white,
+        fontFamily: 'Arial',
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+        useMaterial3: true,
+      ),
+      home: const MainAppScreen(),
+      debugShowCheckedModeBanner: false,
+    );
   }
+}
 
-  class MyApp extends StatelessWidget {
-    const MyApp({super.key});
+class MainAppScreen extends StatefulWidget {
+  const MainAppScreen({super.key});
 
-    @override
-    Widget build(BuildContext context) {
-      return MaterialApp(
-        title: 'DEPD - Daily Wellness',
-        theme: ThemeData(
-          primaryColor: AppColors.primary,
-          scaffoldBackgroundColor: Colors.white,
-          fontFamily: 'Arial',
-          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
-          useMaterial3: true,
-        ),
-        home: const MainAppScreen(),
-        debugShowCheckedModeBanner: false,
-      );
-    }
-  }
+  @override
+  State<MainAppScreen> createState() => _MainAppScreenState();
+}
 
-  class MainAppScreen extends StatefulWidget {
-    const MainAppScreen({super.key});
+class _MainAppScreenState extends State<MainAppScreen> {
+  int _selectedIndex = 0;
 
-    @override
-    State<MainAppScreen> createState() => _MainAppScreenState();
-  }
-
-  class _MainAppScreenState extends State<MainAppScreen> {
-    int _selectedIndex = 0;
-
-    final List<Widget> _screens = [
-      const DashboardScreen(),
-      const TimerScreen(),
-      const ProfileScreen(),
-    ];
-
-    void _onNavBarTapped(int index) {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _screens,
-        ),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, -5),
-              ),
-            ],
-          ),
-          child: BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            onTap: _onNavBarTapped,
-            backgroundColor: Colors.white,
-            selectedItemColor: AppColors.primary,
-            unselectedItemColor: Colors.grey,
-            showUnselectedLabels: true,
-            type: BottomNavigationBarType.fixed,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_rounded),
-                label: 'Dashboard',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.timer_outlined),
-                activeIcon: Icon(Icons.timer),
-                label: 'Timer',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline),
-                activeIcon: Icon(Icons.person),
-                label: 'Profile',
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-  }
+  final List<Widget> _screens = [
+    const DashboardScreen(),
+    const TimerScreen(),
+    const ProfileScreen(),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() => _selectedIndex = index);
->>>>>>> origin/main
+  void _onNavBarTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-<<<<<<< HEAD
       body: IndexedStack(
         index: _selectedIndex,
         children: _screens,
       ),
       bottomNavigationBar: Container(
-        // Menambahkan sedikit shadow agar navbar terlihat lebih pop-up
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
@@ -139,10 +80,10 @@ void main() {
           currentIndex: _selectedIndex,
           onTap: _onNavBarTapped,
           backgroundColor: Colors.white,
-          selectedItemColor: AppColors.primary, // Warna Orange saat aktif
-          unselectedItemColor: Colors.grey,     // Warna Abu saat tidak aktif
+          selectedItemColor: AppColors.primary,
+          unselectedItemColor: Colors.grey,
           showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,  // Agar item tidak bergeser
+          type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_rounded),
@@ -164,64 +105,6 @@ void main() {
     );
   }
 }
-=======
-      body: _pages[_selectedIndex],
-
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-
-        selectedItemColor: Colors.deepOrange,
-        unselectedItemColor: Colors.grey,
-
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: "Journal"),
-          BottomNavigationBarItem(icon: Icon(Icons.timer), label: "Pomodoro"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-          BottomNavigationBarItem(icon: Icon(Icons.games), label: "Minigame"),
-        ],
-      ),
-    );
-  }
-}
-
-// import 'package:alp_depd_flutter/view/pages/pages.dart';
-// import 'package:flutter/material.dart';
-
-// void main() {
-//   runApp(const MaterialApp(home: home()));
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   // This widget is the root of your application.
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Flutter Demo',
-//       theme: ThemeData(
-//         // This is the theme of your application.
-//         //
-//         // TRY THIS: Try running your application with "flutter run". You'll see
-//         // the application has a purple toolbar. Then, without quitting the app,
-//         // try changing the seedColor in the colorScheme below to Colors.green
-//         // and then invoke "hot reload" (save your changes or press the "hot
-//         // reload" button in a Flutter-supported IDE, or press "r" if you used
-//         // the command line to start the app).
-//         //
-//         // Notice that the counter didn't reset back to zero; the application
-//         // state is not lost during the reload. To reset the state, use hot
-//         // restart instead.
-//         //
-//         // This works for code too, not just values: Most code changes can be
-//         // tested with just a hot reload.
-//         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-//       ),
-//       home: const MyHomePage(title: 'Flutter Demo Home Page'),
-//     );
-//   }
-// }
 
 // class MyHomePage extends StatefulWidget {
 //   const MyHomePage({super.key, required this.title});
@@ -308,4 +191,3 @@ void main() {
 //     );
 //   }
 // }
->>>>>>> origin/main
