@@ -1,4 +1,4 @@
-import 'dart:ffi';
+// Removed `dart:ffi` import — not available on web and not used here.
 
 import '../model/assignmentModel.dart';
 import '../service/assignmentService.dart';
