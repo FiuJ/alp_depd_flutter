@@ -59,12 +59,28 @@ class _AssignmentListPageState extends State<AssignmentListPage> {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text("Progress: ${item.progress.toInt()}%"),
-                  trailing: Icon(
-                    isSelected ? Icons.check_circle : Icons.add_circle_outline,
-                    color: isSelected ? Colors.green : Colors.orange,
+                  trailing: IconButton(
+                    icon: Icon(
+                      isSelected
+                          ? Icons.check_circle
+                          : Icons.add_circle_outline,
+                      color: isSelected ? Colors.green : Colors.orange,
+                    ),
+                    onPressed: () {
+                      timerVM.toggleSelection(item);
+                    },
                   ),
                   onTap: () {
-                    timerVM.toggleSelection(item);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            Assignmentdetailpage(assignment: item),
+                      ),
+                    ).then((_) {
+                      // Refresh the list when returning from the form
+                      setState(() {});
+                    });
                   },
                 ),
               );

@@ -8,7 +8,6 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  
   // 1. Logic to Logout
   Future<void> _handleLogout() async {
     // Sign out from Supabase
@@ -18,7 +17,7 @@ class _ProfileState extends State<Profile> {
       // Navigate to Login Page and remove all previous history (so you can't go back)
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const LoginPage()),
-        (route) => false, 
+        (route) => false,
       );
     }
   }
@@ -52,22 +51,16 @@ class _ProfileState extends State<Profile> {
               backgroundColor: Colors.deepOrange,
               child: Icon(Icons.person, size: 50, color: Colors.white),
             ),
-            
+
             const SizedBox(height: 16),
-            
-            Text(
-              "Logged in as:",
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            
+
+            Text("Logged in as:", style: TextStyle(color: Colors.grey[600])),
+
             const SizedBox(height: 8),
 
             Text(
               userEmail,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 50),
@@ -90,10 +83,7 @@ class _ProfileState extends State<Profile> {
                 icon: const Icon(Icons.logout),
                 label: const Text(
                   "Log Out",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),

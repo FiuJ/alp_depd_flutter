@@ -1,11 +1,11 @@
 // import 'package:alp_depd_flutter/main.dart';
+import 'package:alp_depd_flutter/main.dart';
 import 'package:alp_depd_flutter/model/model.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:alp_depd_flutter/model/profile_model.dart';
 
 class AuthViewModel extends ChangeNotifier {
-
   // Do not access Supabase.instance at construction time; it may not be
   // initialized (we run without initialization for web in some flows).
   // Instead, access the client inside methods and handle the case where
@@ -27,7 +27,7 @@ class AuthViewModel extends ChangeNotifier {
     _errorMessage = null;
 
     try {
-      final client = Supabase.instance.client;
+      final client = supabase;
 
       // 1. Create Auth User
       final AuthResponse response = await client.auth.signUp(
@@ -63,7 +63,7 @@ class AuthViewModel extends ChangeNotifier {
     _errorMessage = null;
 
     try {
-      final client = Supabase.instance.client;
+      final client = supabase;
 
       final AuthResponse response = await client.auth.signInWithPassword(
         email: email,
@@ -86,7 +86,7 @@ class AuthViewModel extends ChangeNotifier {
   // Sign Out
   Future<void> signOut() async {
     try {
-      final client = Supabase.instance.client;
+      final client = supabase;
       await client.auth.signOut();
     } catch (_) {
       // Supabase not initialized — nothing to do

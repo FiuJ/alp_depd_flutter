@@ -16,7 +16,7 @@ import 'package:alp_depd_flutter/model/assignmentModel.dart';
 import 'package:alp_depd_flutter/repository/assignmentRepository.dart';
 import 'package:alp_depd_flutter/shared/style.dart';
 import 'package:alp_depd_flutter/viewmodel/auth_viewmodel.dart';
-// import 'package:supabase_flutter/supabase_flutter.dart'; 
+// import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'home.dart';
 part 'journal.dart';
@@ -33,3 +33,4 @@ part 'register_page.dart';
 part 'login_page.dart';
 part 'journal_detail.dart';
 part 'assignmentFormPage.dart';
+part 'assignmentDetailPage.dart';

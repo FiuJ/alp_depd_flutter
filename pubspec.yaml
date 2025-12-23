@@ -51,7 +51,6 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/characters/
     - assets/images/Yucca.svg
     - assets/images/YuccaWork.svg
     - assets/images/YuccaHome.svg
