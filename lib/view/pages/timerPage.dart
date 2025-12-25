@@ -40,6 +40,29 @@ class _TimerPageState extends State<TimerPage> {
     }
   }
 
+  // void _handleAllCyclesComplete() async {
+  //   if (mounted) {
+  //     if (_viewModel.selectedAssignments.isNotEmpty) {
+  //       await showDialog(
+  //         context: context,
+  //         barrierDismissible: false,
+  //         builder: (context) => ProgressUpdateDialog(
+  //           assignments: _viewModel.selectedAssignments,
+  //           onSave: (progressUpdates) async {
+  //             await _viewModel.finalizeSession(progressUpdates);
+  //             if (mounted) {
+  //               Navigator.pop(context); // Close Dialog
+  //               Navigator.pop(context); // Return to Settings
+  //             }
+  //           },
+  //         ),
+  //       );
+  //     } else {
+  //       Navigator.pop(context);
+  //     }
+  //   }
+  // }
+
   void _handleAllCyclesComplete() async {
     if (mounted) {
       if (_viewModel.selectedAssignments.isNotEmpty) {
@@ -50,9 +73,43 @@ class _TimerPageState extends State<TimerPage> {
             assignments: _viewModel.selectedAssignments,
             onSave: (progressUpdates) async {
               await _viewModel.finalizeSession(progressUpdates);
+              
               if (mounted) {
-                Navigator.pop(context); // Close Dialog
-                Navigator.pop(context); // Return to Settings
+                Navigator.pop(context); // Tutup Progress Dialog
+                
+                // --- INTEGRASI PROMPT STRES DISINI ---
+                await showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => AlertDialog(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    title: const Text("Sesi Selesai!", style: TextStyle(fontWeight: FontWeight.bold)),
+                    content: const Text("Ingin mencatat tingkat stresmu agar bisa dipantau di grafik kesehatan mental?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context), 
+                        child: const Text("Nanti")
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Style.orange),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          // Ambil ID tugas pertama jika ada untuk relasi database
+                          int? firstId = _viewModel.selectedAssignments.isNotEmpty 
+                              ? int.tryParse(_viewModel.selectedAssignments.first.id) 
+                              : null;
+                          showDialog(
+                            context: context,
+                            builder: (c) => StressFormDialog(assignmentId: firstId),
+                          );
+                        },
+                        child: const Text("Mulai Cek", style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (mounted) Navigator.pop(context); // Kembali ke Settings
               }
             },
           ),

@@ -1,44 +1,44 @@
 part of 'pages.dart';
 
 // --- Custom Slider Thumb ---
-class CustomWhiteSliderThumb extends SliderComponentShape {
-  final double thumbRadius;
-  const CustomWhiteSliderThumb({this.thumbRadius = 5.0});
+// class CustomWhiteSliderThumb extends SliderComponentShape {
+//   final double thumbRadius;
+//   const CustomWhiteSliderThumb({this.thumbRadius = 5.0});
 
-  @override
-  ui.Size getPreferredSize(bool isEnabled, bool isDiscrete) {
-    return ui.Size.fromRadius(thumbRadius);
-  }
+//   @override
+//   ui.Size getPreferredSize(bool isEnabled, bool isDiscrete) {
+//     return ui.Size.fromRadius(thumbRadius);
+//   }
 
-  @override
-  void paint(
-    PaintingContext context,
-    Offset center, {
-    required Animation<double> activationAnimation,
-    required Animation<double> enableAnimation,
-    required bool isDiscrete,
-    required TextPainter labelPainter,
-    required RenderBox parentBox,
-    required SliderThemeData sliderTheme,
-    required TextDirection textDirection,
-    required double value,
-    required double textScaleFactor,
-    required ui.Size sizeWithOverflow,
-  }) {
-    final Canvas canvas = context.canvas;
-    final Paint paint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
+//   @override
+//   void paint(
+//     PaintingContext context,
+//     Offset center, {
+//     required Animation<double> activationAnimation,
+//     required Animation<double> enableAnimation,
+//     required bool isDiscrete,
+//     required TextPainter labelPainter,
+//     required RenderBox parentBox,
+//     required SliderThemeData sliderTheme,
+//     required TextDirection textDirection,
+//     required double value,
+//     required double textScaleFactor,
+//     required ui.Size sizeWithOverflow,
+//   }) {
+//     final Canvas canvas = context.canvas;
+//     final Paint paint = Paint()
+//       ..color = Colors.white
+//       ..style = PaintingStyle.fill;
 
-    final Paint borderPaint = Paint()
-      ..color = Colors.grey[400]!
-      ..strokeWidth = 0.8
-      ..style = PaintingStyle.stroke;
+//     final Paint borderPaint = Paint()
+//       ..color = Colors.grey[400]!
+//       ..strokeWidth = 0.8
+//       ..style = PaintingStyle.stroke;
 
-    canvas.drawCircle(center, thumbRadius, paint);
-    canvas.drawCircle(center, thumbRadius, borderPaint);
-  }
-}
+//     canvas.drawCircle(center, thumbRadius, paint);
+//     canvas.drawCircle(center, thumbRadius, borderPaint);
+//   }
+// }
 
 // --- Settings Page ---
 class Timersettingspage extends StatefulWidget {

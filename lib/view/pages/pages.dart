@@ -4,9 +4,13 @@ import 'dart:ui' as ui;
 
 import 'package:alp_depd_flutter/main.dart';
 import 'package:alp_depd_flutter/model/model.dart';
+// import 'package:alp_depd_flutter/view/pages/stress_form_dialog.dart';
 import 'package:alp_depd_flutter/viewmodel/assignmentViewmodel.dart';
 import 'package:alp_depd_flutter/viewmodel/journal_viewmodel.dart';
+import 'package:alp_depd_flutter/viewmodel/stress_viewmodel.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -16,6 +20,7 @@ import 'package:alp_depd_flutter/model/assignmentModel.dart';
 import 'package:alp_depd_flutter/repository/assignmentRepository.dart';
 import 'package:alp_depd_flutter/shared/style.dart';
 import 'package:alp_depd_flutter/viewmodel/auth_viewmodel.dart';
+import 'package:alp_depd_flutter/view/widgets/custom_white_slider_thumb.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'home.dart';
@@ -34,3 +39,4 @@ part 'login_page.dart';
 part 'journal_detail.dart';
 part 'assignmentFormPage.dart';
 part 'assignmentDetailPage.dart';
+part 'stress_form_dialog.dart';
