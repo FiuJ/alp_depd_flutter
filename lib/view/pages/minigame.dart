@@ -33,7 +33,7 @@ class _MinigameState extends State<Minigame> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const WordlePage()),
+                  MaterialPageRoute(builder: (_) => const BubbleGamePage()),
                 );
               },
             ),
