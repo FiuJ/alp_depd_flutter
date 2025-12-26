@@ -1,15 +1,20 @@
 part of 'model.dart';
 
-enum BubbleColor { red, blue, green, yellow }
-
 class Bubble {
-  BubbleColor color;
-  Offset position;
-  bool isMoving;
+  final int row;
+  final int col;
+  final Color color;
 
   Bubble({
+    required this.row,
+    required this.col,
     required this.color,
-    required this.position,
-    this.isMoving = false,
   });
 }
+
+const List<Color> bubbleColors = [
+  Colors.red,
+  Colors.blue,
+  Colors.green,
+  Colors.yellow,
+];

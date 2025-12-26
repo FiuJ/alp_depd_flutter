@@ -26,14 +26,18 @@ class _MinigameState extends State<Minigame> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-
             _buildGameCard(
               title: "Wordle",
               image: "assets/minigames/wordle.png",
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const BubbleGamePage()),
+                  MaterialPageRoute(
+                    builder: (context) => ChangeNotifierProvider(
+                      create: (_) => BubbleGameViewmodel(),
+                      child: const BubbleGamePage(),
+                    ),
+                  ),
                 );
               },
             ),
@@ -89,7 +93,7 @@ class _MinigameState extends State<Minigame> {
               color: Colors.orange.withOpacity(0.2),
               offset: const Offset(2, 3),
               blurRadius: 6,
-            )
+            ),
           ],
         ),
         child: Stack(
@@ -109,7 +113,9 @@ class _MinigameState extends State<Minigame> {
             Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 18, vertical: 10),
+                  horizontal: 18,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   // ignore: deprecated_member_use
                   color: Colors.white.withOpacity(0.85),
@@ -124,7 +130,7 @@ class _MinigameState extends State<Minigame> {
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -1,127 +1,183 @@
 part of 'pages.dart';
 
-class BubbleGamePage extends StatefulWidget {
+class BubbleGamePage extends StatelessWidget {
   const BubbleGamePage({super.key});
 
   @override
-  State<BubbleGamePage> createState() => _BubbleGamePageState();
+  Widget build(BuildContext context) {
+    final vm = context.watch<BubbleGameViewmodel>();
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          const _GameBackground(),
+
+          Column(
+            children: [
+              // GAME AREA
+              Expanded(
+                flex: 7,
+                child: _Arena(
+                  columns: vm.columns,
+                  bubbles: vm.bubbles,
+                  isAiming: vm.isAiming,
+                  aimPosition: vm.aimPosition,
+                ),
+              ),
+
+              // SHOOTER
+              Expanded(
+                flex: 3,
+                child: GestureDetector(
+                  onPanStart: (_) => vm.startAiming(),
+                  onPanUpdate: (d) => vm.updateAim(d.localPosition),
+                  onPanEnd: (_) => vm.shoot(),
+                  child: _Shooter(vm.currentBallColor),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _BubbleGamePageState extends State<BubbleGamePage> {
-  late BubbleGameViewModel vm;
+/* ================= UI ================= */
 
-  @override
-  void initState() {
-    super.initState();
-    vm = BubbleGameViewModel();
-  }
-
-  Color _mapColor(BubbleColor color) {
-    switch (color) {
-      case BubbleColor.red:
-        return Colors.red;
-      case BubbleColor.blue:
-        return Colors.blue;
-      case BubbleColor.green:
-        return Colors.green;
-      case BubbleColor.yellow:
-        return Colors.yellow;
-    }
-  }
+class _GameBackground extends StatelessWidget {
+  const _GameBackground();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: GestureDetector(
-        onPanUpdate: (details) {
-          vm.updateAim(details.localPosition - vm.shooterPosition);
-          setState(() {});
-        },
-        onPanEnd: (_) {
-          vm.shootBubble(() => setState(() {}));
-        },
-        child: Stack(
-          children: [
-            ..._buildGrid(),
-            _buildAimLine(),
-            _buildCurrentBubble(),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF1B1E3C),
+            Color(0xFF2C2F5C),
           ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
       ),
     );
   }
+}
 
-  List<Widget> _buildGrid() {
-    final widgets = <Widget>[];
+class _Arena extends StatelessWidget {
+  final int columns;
+  final List bubbles;
+  final bool isAiming;
+  final Offset aimPosition;
 
-    for (var row in vm.grid) {
-      for (var bubble in row) {
-        if (bubble == null) continue;
-        widgets.add(
-          Positioned(
-            left: bubble.position.dx,
-            top: bubble.position.dy,
-            child: _bubbleWidget(bubble.color),
-          ),
-        );
-      }
-    }
+  const _Arena({
+    required this.columns,
+    required this.bubbles,
+    required this.isAiming,
+    required this.aimPosition,
+  });
 
-    return widgets;
-  }
-
-  Widget _buildCurrentBubble() {
-    return Positioned(
-      left: vm.currentBubble.position.dx,
-      top: vm.currentBubble.position.dy,
-      child: _bubbleWidget(vm.currentBubble.color),
-    );
-  }
-
-  Widget _bubbleWidget(BubbleColor color) {
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      width: vm.bubbleSize,
-      height: vm.bubbleSize,
+      margin: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: _mapColor(color),
-        shape: BoxShape.circle,
+        color: Colors.black.withOpacity(0.25),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white24, width: 2),
       ),
-    );
-  }
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final cellSize = constraints.maxWidth / columns;
 
-  Widget _buildAimLine() {
-    return CustomPaint(
-      painter: _AimPainter(
-        start: vm.shooterPosition,
-        direction: vm.aimDirection,
+          return Stack(
+            children: [
+              Wrap(
+                children: bubbles.map<Widget>((bubble) {
+                  return SizedBox(
+                    width: cellSize,
+                    height: cellSize,
+                    child: _MarbleBubble(bubble.color),
+                  );
+                }).toList(),
+              ),
+
+              if (isAiming)
+                CustomPaint(
+                  size: Size.infinite,
+                  painter: _AimPainter(aimPosition),
+                ),
+            ],
+          );
+        },
       ),
-      size: Size.infinite,
     );
   }
 }
 
-class _AimPainter extends CustomPainter {
-  final Offset start;
-  final Offset direction;
+class _Shooter extends StatelessWidget {
+  final Color color;
 
-  _AimPainter({required this.start, required this.direction});
+  const _Shooter(this.color);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: _MarbleBubble(color),
+    );
+  }
+}
+
+class _MarbleBubble extends StatelessWidget {
+  final Color color;
+
+  const _MarbleBubble(this.color);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          center: const Alignment(-0.4, -0.4),
+          colors: [
+            Colors.white.withOpacity(0.85),
+            color,
+            color.withOpacity(0.9),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 6,
+            offset: const Offset(2, 3),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/* ================= AIM LINE ================= */
+
+class _AimPainter extends CustomPainter {
+  final Offset aim;
+
+  _AimPainter(this.aim);
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (direction == Offset.zero) return;
-
     final paint = Paint()
-      ..color = Colors.white
+      ..color = Colors.white70
       ..strokeWidth = 2;
 
-    canvas.drawLine(
-      start,
-      start + direction * 3,
-      paint,
-    );
+    final start = Offset(size.width / 2, size.height);
+    canvas.drawLine(start, aim, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(_) => true;
 }
