@@ -17,7 +17,6 @@ class _AssignmentListPageState extends State<AssignmentListPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('All Assignments'), elevation: 0),
 
-      // ADDED: Floating Action Button to navigate to the Form Page
       floatingActionButton: FloatingActionButton(
         heroTag: "add_assignment_btn",
         backgroundColor: Colors.orange,
@@ -27,7 +26,6 @@ class _AssignmentListPageState extends State<AssignmentListPage> {
             context,
             MaterialPageRoute(builder: (context) => const AssignmentFormPage()),
           ).then((_) {
-            // Refresh the list when returning from the form
             setState(() {});
           });
         },

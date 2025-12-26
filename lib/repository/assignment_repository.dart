@@ -1,7 +1,7 @@
 // Removed `dart:ffi` import — not available on web and not used here.
 
-import '../model/assignmentModel.dart';
-import '../service/assignmentService.dart';
+import '../model/assignment_model.dart';
+import '../service/assignment_service.dart';
 import 'package:alp_depd_flutter/main.dart';
 
 class AssignmentRepository {
@@ -18,7 +18,7 @@ class AssignmentRepository {
       final response = await supabase
           .from('assignments')
           .select()
-          .eq('user_id', userId) // Ensure this column name matches your DB
+          .eq('user_id', userId)
           .order('due_date', ascending: true);
 
       // 3. Map the response to your Model
@@ -43,6 +43,8 @@ class AssignmentRepository {
       'due_date': due.toIso8601String(),
     });
   }
+
+  
 
   Future<void> updateBulkProgress(Map<String, int> updates) async {
     for (var entry in updates.entries) {

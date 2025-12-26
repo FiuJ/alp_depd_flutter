@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'viewmodel/timerViewmodel.dart';
+import 'viewmodel/timer_viewmodel.dart';
 import 'constants/colors.dart';
 
 import 'view/pages/pages.dart';
