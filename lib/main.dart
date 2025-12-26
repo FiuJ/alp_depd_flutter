@@ -1,21 +1,33 @@
+import 'package:alp_depd_flutter/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'constants/theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
+import 'viewmodel/timer_viewmodel.dart';
 import 'constants/colors.dart';
 
-import 'screens/dashboard_screen.dart';
-import 'screens/timer_screen.dart';
-import 'screens/profile_screen.dart';
 import 'view/pages/pages.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables from .env before reading `Const` getters
+  await dotenv.load();
+
+  await Supabase.initialize(
+    url: Const.supabaseUrl,
+    anonKey: Const.supabaseAnonKey,
+  );
+  supabase = Supabase.instance.client;
+
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => Timerviewmodel())],
+      child: const MyApp(),
+    ),
+  );
 }
 
-// Global supabase client placeholder. Some files (from origin/main)
-// import `package:alp_depd_flutter/main.dart` and expect this symbol.
-// If you want full Supabase functionality, initialize this in `main()`
-// using `Supabase.initialize(...)` and set `supabase = Supabase.instance.client;`.
 late final SupabaseClient supabase;
 
 class MyApp extends StatelessWidget {
@@ -32,103 +44,54 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         useMaterial3: true,
       ),
-      initialRoute: '/login',
-      routes: {
-        '/login': (context) => const LoginPage(),
-        '/': (context) => const AuthGate(),
-        '/main': (context) => const MainAppScreen(),
-      },
+      home: Supabase.instance.client.auth.currentSession != null
+          ? const MainNavigation()
+          : const LoginPage(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-/// AuthGate: Determines whether to show login or main app based on auth state.
-/// For now, we default to LoginPage since supabase is not initialized.
-/// Once Supabase is properly initialized, check `Supabase.instance.client.auth.currentSession`.
-class AuthGate extends StatefulWidget {
-  const AuthGate({super.key});
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
 
   @override
-  State<AuthGate> createState() => _AuthGateState();
+  State<MainNavigation> createState() => _MainNavigationState();
 }
 
-class _AuthGateState extends State<AuthGate> {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: Uncomment and use this once Supabase is initialized in main()
-    // final session = Supabase.instance.client.auth.currentSession;
-    // return session != null ? const MainAppScreen() : const LoginPage();
-    
-    // For now, show LoginPage by default
-    return const LoginPage();
-  }
-}
-
-class MainAppScreen extends StatefulWidget {
-  const MainAppScreen({super.key});
-
-  @override
-  State<MainAppScreen> createState() => _MainAppScreenState();
-}
-
-class _MainAppScreenState extends State<MainAppScreen> {
+class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    const DashboardScreen(),
-    const TimerScreen(),
-    const ProfileScreen(),
+  final List<Widget> _pages = const [
+    Timersettingspage(),
+    Summary(), // Your journal page
+    Profile(),
+    Minigame(), // Create this page
+    // Your timer page
   ];
 
-  void _onNavBarTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  void _onItemTapped(int index) {
+    setState(() => _selectedIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onNavBarTapped,
-          backgroundColor: Colors.white,
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: Colors.grey,
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_rounded),
-              label: 'Dashboard',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.timer_outlined),
-              activeIcon: Icon(Icons.timer),
-              label: 'Timer',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
-        ),
+      body: _pages[_selectedIndex],
+
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+
+        selectedItemColor: Colors.deepOrange,
+        unselectedItemColor: Colors.grey,
+
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.timer), label: "Timer"),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: "Journal"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.games), label: "Minigame"),
+        ],
       ),
     );
   }
@@ -221,9 +184,3 @@ class _MainAppScreenState extends State<MainAppScreen> {
 // }
 
 // MainNavigation shim: maps to UI main screen for compatibility with login pages
-class MainNavigation extends StatelessWidget {
-  const MainNavigation({super.key});
-
-  @override
-  Widget build(BuildContext context) => const MainAppScreen();
-}

@@ -65,7 +65,6 @@ class JournalViewModel extends ChangeNotifier {
 
       // Convert to List<JournalModel>
       _journals = response.map((data) => JournalModel.fromMap(data)).toList();
-      
     } catch (e) {
       _errorMessage = 'Failed to load journals: ${e.toString()}';
     } finally {
