@@ -16,6 +16,8 @@ import 'package:alp_depd_flutter/model/assignment_model.dart';
 import 'package:alp_depd_flutter/repository/assignment_repository.dart';
 import 'package:alp_depd_flutter/shared/style.dart';
 import 'package:alp_depd_flutter/viewmodel/auth_viewmodel.dart';
+import 'package:alp_depd_flutter/model/tetris_model.dart';
+import 'package:alp_depd_flutter/viewmodel/tetris_viewmodel.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'home.dart';
@@ -34,3 +36,4 @@ part 'login_page.dart';
 part 'journal_detail.dart';
 part 'assignment_form_page.dart';
 part 'assignmentDetailPage.dart';
+part 'tetris_view.dart';

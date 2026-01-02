@@ -54,13 +54,13 @@ class _MinigameState extends State<Minigame> {
             const SizedBox(height: 25),
 
             _buildGameCard(
-              title: "Guess The Place",
-              image: "assets/minigames/guessplace.png",
+              title: "Tetris",  
+              image: "assets/minigames/tetris.png", 
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (_) => const GuessPlacePage()),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TetrisView()), 
+                );
               },
             ),
           ],
