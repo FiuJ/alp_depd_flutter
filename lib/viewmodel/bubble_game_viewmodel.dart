@@ -5,11 +5,15 @@ import 'package:flutter/material.dart';
 class BubbleGameViewModel extends ChangeNotifier {
   static const int rows = 15; 
   static const int cols = 8;
-  static const int deadLineRow = 10; // Baris batas Game Over
+  static const int deadLineRow = 10; 
 
   List<List<Color?>> grid = [];
+  
+  // STATUS GAME
   bool isShooting = false;
   bool isGameOver = false;
+  bool isVictory = false; // Status Menang
+  int score = 0; // Skor Pemain
 
   Color currentBall = Colors.red;
   Offset projectilePos = Offset.zero;
@@ -23,6 +27,7 @@ class BubbleGameViewModel extends ChangeNotifier {
   }
 
   void _initGrid() {
+    // Isi 5 baris pertama saja agar pemain bisa menghabiskannya
     grid = List.generate(rows, (r) {
       return List.generate(cols, (c) => r < 5 ? _randomColor() : null);
     });
@@ -38,15 +43,15 @@ class BubbleGameViewModel extends ChangeNotifier {
     currentBall = _randomColor();
     isShooting = false;
     isGameOver = false;
+    isVictory = false; // Reset status menang
+    score = 0; // Reset skor
     notifyListeners();
   }
 
   void updateAim(Offset localPos, Size gameAreaSize) {
-    if (isShooting || isGameOver) return;
+    if (isShooting || isGameOver || isVictory) return; // Cek isVictory juga
     
-    // Pusat shooter di tengah bawah area permainan
     final shooterPos = Offset(gameAreaSize.width / 2, gameAreaSize.height);
-    
     double dx = localPos.dx - shooterPos.dx;
     double dy = localPos.dy - shooterPos.dy;
     
@@ -55,17 +60,13 @@ class BubbleGameViewModel extends ChangeNotifier {
   }
 
   void shoot(double bubbleSize, double gameHeight) {
-    if (isShooting || isGameOver) return;
+    if (isShooting || isGameOver || isVictory) return; // Cek isVictory
 
     isShooting = true;
-    
-    // Posisi awal bola
     double startX = (cols * bubbleSize) / 2 - (bubbleSize / 2);
-    // Sedikit di atas bawah layar agar tidak langsung trigger collision dgn dinding bawah
     double startY = gameHeight - bubbleSize; 
 
     projectilePos = Offset(startX, startY);
-    
     double speed = 25.0; 
     projectileVel = Offset(cos(aimAngle) * speed, sin(aimAngle) * speed);
 
@@ -74,18 +75,16 @@ class BubbleGameViewModel extends ChangeNotifier {
     });
   }
 
-  // --- PERBAIKAN UTAMA ADA DI SINI ---
   void _updateProjectile(double bubbleSize) {
     projectilePos += projectileVel;
 
-    // 1. Pantulan Dinding Kiri/Kanan
+    // Pantulan Dinding
     if (projectilePos.dx <= 0 || projectilePos.dx >= (cols * bubbleSize) - bubbleSize) {
       projectileVel = Offset(-projectileVel.dx, projectileVel.dy);
       projectilePos = Offset(projectilePos.dx.clamp(0, (cols * bubbleSize) - bubbleSize), projectilePos.dy);
     }
 
-    // 2. Cek Berhenti: HANYA jika kena atap ATAU menabrak bola lain.
-    // JANGAN CEK GARIS BATAS DI SINI! Biarkan bola lewat.
+    // Cek Berhenti (Atap atau Tabrakan Bola)
     if (projectilePos.dy <= 0 || _checkCollision(bubbleSize)) {
       _timer?.cancel();
       _snapToGrid(bubbleSize);
@@ -94,16 +93,12 @@ class BubbleGameViewModel extends ChangeNotifier {
   }
 
   bool _checkCollision(double bubbleSize) {
-    // Titik tengah bola proyektil
     Offset pCenter = projectilePos + Offset(bubbleSize/2, bubbleSize/2);
 
     for (int r = 0; r < rows; r++) {
       for (int c = 0; c < cols; c++) {
-        // Hanya cek tabrakan dengan bola yang SUDAH ADA di grid
         if (grid[r][c] != null) {
           Offset gCenter = Offset(c * bubbleSize + bubbleSize/2, r * bubbleSize + bubbleSize/2);
-          
-          // Jika jarak cukup dekat, dianggap menabrak
           if ((pCenter - gCenter).distance < bubbleSize * 0.85) {
             return true;
           }
@@ -114,25 +109,25 @@ class BubbleGameViewModel extends ChangeNotifier {
   }
 
   void _snapToGrid(double bubbleSize) {
-    // Hitung posisi grid tempat bola berhenti
     int c = (projectilePos.dx / bubbleSize).round().clamp(0, cols - 1);
     int r = (projectilePos.dy / bubbleSize).round().clamp(0, rows - 1);
 
-    // Jika slot penuh, cari slot kosong di bawahnya (agar tidak menumpuk)
     while (r < rows && grid[r][c] != null) {
       r++;
     }
 
-    // --- CEK GAME OVER DILAKUKAN DI SINI ---
-    // Game Over hanya terjadi jika BOLA BERHENTI (nempel) di bawah garis merah.
+    // CEK GAME OVER
     if (r >= deadLineRow) {
       isGameOver = true;
-      if (r < rows) grid[r][c] = currentBall; // Tampilkan bola penyebab kalah
+      if (r < rows) grid[r][c] = currentBall; 
     } else {
-      // Jika aman, pasang bola dan cek match-3
+      // Pasang bola
       if (r < rows) {
         grid[r][c] = currentBall;
         _checkMatches(r, c);
+        
+        // SETELAH MATCH SELESAI, CEK APAKAH MENANG?
+        _checkVictory();
       }
     }
 
@@ -146,9 +141,31 @@ class BubbleGameViewModel extends ChangeNotifier {
     _floodFill(r, c, grid[r][c]!, matches);
     
     if (matches.length >= 3) {
+      // TAMBAH SKOR
+      score += matches.length * 10;
+      
       for (var p in matches) {
         grid[p.y][p.x] = null;
       }
+    }
+  }
+
+  // Fungsi Baru: Cek Kemenangan
+  void _checkVictory() {
+    bool hasBall = false;
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        if (grid[r][c] != null) {
+          hasBall = true;
+          break;
+        }
+      }
+    }
+    
+    // Jika tidak ada bola tersisa, Menang!
+    if (!hasBall) {
+      isVictory = true;
+      score += 1000; // Bonus skor jika menang
     }
   }
 

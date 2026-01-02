@@ -8,7 +8,7 @@ class BubbleGamePage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => BubbleGameViewModel(),
       child: const Scaffold(
-        backgroundColor: Color(0xFF1B1E3C), // Background gelap
+        backgroundColor: Color(0xFF1B1E3C),
         body: SafeArea(
           child: _BubbleGameLayout(),
         ),
@@ -26,15 +26,10 @@ class _BubbleGameLayout extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // 1. Hitung ukuran bola agar pas dengan lebar layar
         final double bubbleSize = constraints.maxWidth / BubbleGameViewModel.cols;
-        
-        // 2. Tentukan tinggi area permainan (Grid + Area terbang bola)
-        // Kita ambil sebagian besar layar, sisakan sedikit di bawah untuk panel info jika perlu
         final double gameAreaHeight = constraints.maxHeight;
 
         return GestureDetector(
-          // Kirim input sentuhan ke ViewModel
           onPanUpdate: (details) => vm.updateAim(
             details.localPosition, 
             Size(constraints.maxWidth, gameAreaHeight)
@@ -44,10 +39,10 @@ class _BubbleGameLayout extends StatelessWidget {
           child: Container(
             width: constraints.maxWidth,
             height: gameAreaHeight,
-            color: Colors.transparent, // Transparan agar background Scaffold terlihat
+            color: Colors.transparent,
             child: Stack(
               children: [
-                // --- LAYER 1: GRID BOLA (Paling Bawah) ---
+                // 1. GRID BOLA
                 for (int r = 0; r < BubbleGameViewModel.rows; r++)
                   for (int c = 0; c < BubbleGameViewModel.cols; c++)
                     if (vm.grid[r][c] != null)
@@ -57,7 +52,7 @@ class _BubbleGameLayout extends StatelessWidget {
                         child: _BubbleBall(color: vm.grid[r][c]!, size: bubbleSize),
                       ),
 
-                // --- LAYER 2: GARIS PEMBATAS (DEAD LINE) ---
+                // 2. GARIS PEMBATAS
                 Positioned(
                   top: BubbleGameViewModel.deadLineRow * bubbleSize,
                   left: 0,
@@ -67,33 +62,48 @@ class _BubbleGameLayout extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.redAccent,
                       boxShadow: [
-                        BoxShadow(
-                          color: Colors.red.withOpacity(0.6), 
-                          blurRadius: 8, 
-                          spreadRadius: 2
-                        )
+                        BoxShadow(color: Colors.red.withOpacity(0.6), blurRadius: 8, spreadRadius: 2)
                       ],
                     ),
                   ),
                 ),
-                
-                // Label Peringatan di Garis
                 Positioned(
                   top: (BubbleGameViewModel.deadLineRow * bubbleSize) - 14,
                   right: 8,
-                  child: const Text(
-                    "DANGER ZONE", 
-                    style: TextStyle(
-                      color: Colors.redAccent, 
-                      fontSize: 10, 
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2
-                    )
+                  child: const Text("DANGER ZONE", style: TextStyle(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                ),
+
+                // 3. TAMPILAN SKOR (FITUR BARU)
+                Positioned(
+                  top: 10,
+                  left: 15,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.black45,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white24)
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.stars_rounded, color: Colors.amber, size: 20),
+                        const SizedBox(width: 5),
+                        Text(
+                          "SCORE: ${vm.score}",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.0
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
-                // --- LAYER 3: GARIS BIDIK (Aim Line) ---
-                if (!vm.isShooting && !vm.isGameOver)
+                // 4. GARIS BIDIK
+                if (!vm.isShooting && !vm.isGameOver && !vm.isVictory)
                   CustomPaint(
                     painter: _AimPainter(
                       angle: vm.aimAngle,
@@ -102,17 +112,15 @@ class _BubbleGameLayout extends StatelessWidget {
                     size: Size(constraints.maxWidth, gameAreaHeight),
                   ),
 
-                // --- LAYER 4: BOLA PENEMBAK (SHOOTER) - DIAM ---
-                // Bola ini hanya terlihat jika sedang TIDAK menembak
-                if (!vm.isShooting)
+                // 5. BOLA SHOOTER (DIAM)
+                if (!vm.isShooting && !vm.isVictory) // Sembunyikan jika menang
                   Positioned(
                     left: (constraints.maxWidth / 2) - (bubbleSize / 2),
-                    top: gameAreaHeight - bubbleSize, // Posisi di bawah
+                    top: gameAreaHeight - bubbleSize,
                     child: _BubbleBall(color: vm.currentBall, size: bubbleSize),
                   ),
 
-                // --- LAYER 5: PROYEKTIL (BOLA TERBANG) ---
-                // Ini dirender TERAKHIR agar terbang di ATAS garis merah
+                // 6. PROYEKTIL (TERBANG)
                 if (vm.isShooting)
                   Positioned(
                     left: vm.projectilePos.dx,
@@ -120,40 +128,24 @@ class _BubbleGameLayout extends StatelessWidget {
                     child: _BubbleBall(color: vm.currentBall, size: bubbleSize),
                   ),
 
-                // --- LAYER 6: OVERLAY GAME OVER ---
+                // 7. OVERLAY: GAME OVER (KALAH)
                 if (vm.isGameOver)
-                  Container(
-                    color: Colors.black.withOpacity(0.7),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.dangerous, color: Colors.red, size: 80),
-                          const SizedBox(height: 10),
-                          const Text(
-                            "GAME OVER",
-                            style: TextStyle(
-                              color: Colors.white, 
-                              fontSize: 36, 
-                              fontWeight: FontWeight.bold
-                            ),
-                          ),
-                          const Text(
-                            "Bola melewati batas!",
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                          const SizedBox(height: 30),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent,
-                              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                            ),
-                            onPressed: vm.resetGame,
-                            child: const Text("COBA LAGI", style: TextStyle(fontSize: 18, color: Colors.white)),
-                          )
-                        ],
-                      ),
-                    ),
+                  _ResultOverlay(
+                    title: "GAME OVER",
+                    message: "Bola melewati batas!",
+                    color: Colors.red,
+                    icon: Icons.dangerous,
+                    onRetry: vm.resetGame,
+                  ),
+
+                // 8. OVERLAY: VICTORY (MENANG - FITUR BARU)
+                if (vm.isVictory)
+                  _ResultOverlay(
+                    title: "VICTORY!",
+                    message: "Semua bola bersih! Skor: ${vm.score}",
+                    color: Colors.greenAccent,
+                    icon: Icons.emoji_events,
+                    onRetry: vm.resetGame,
                   ),
               ],
             ),
@@ -164,17 +156,61 @@ class _BubbleGameLayout extends StatelessWidget {
   }
 }
 
-// --- WIDGET PENDUKUNG ---
+// Widget Overlay untuk Menang/Kalah (Reusable)
+class _ResultOverlay extends StatelessWidget {
+  final String title;
+  final String message;
+  final Color color;
+  final IconData icon;
+  final VoidCallback onRetry;
+
+  const _ResultOverlay({
+    required this.title,
+    required this.message,
+    required this.color,
+    required this.icon,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black.withOpacity(0.8),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 80),
+            const SizedBox(height: 10),
+            Text(title, style: TextStyle(color: color, fontSize: 36, fontWeight: FontWeight.bold)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              child: Text(message, style: const TextStyle(color: Colors.white70, fontSize: 16), textAlign: TextAlign.center),
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: color,
+                foregroundColor: Colors.black, // Warna teks tombol
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              ),
+              onPressed: onRetry,
+              child: const Text("MAIN LAGI", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _BubbleBall extends StatelessWidget {
   final Color color;
   final double size;
-
   const _BubbleBall({required this.color, required this.size});
 
   @override
   Widget build(BuildContext context) {
-    // Sedikit padding agar bola tidak terlihat saling menempel kotak
     return Container(
       width: size,
       height: size,
@@ -183,21 +219,11 @@ class _BubbleBall extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: RadialGradient(
-            center: const Alignment(-0.4, -0.4), // Efek cahaya dari kiri atas
-            colors: [
-              Colors.white.withOpacity(0.9), // Kilau
-              color,
-              Color.lerp(color, Colors.black, 0.4)!, // Bayangan
-            ],
+            center: const Alignment(-0.4, -0.4),
+            colors: [Colors.white.withOpacity(0.9), color, Color.lerp(color, Colors.black, 0.4)!],
             stops: const [0.0, 0.3, 1.0],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 4,
-              offset: const Offset(2, 2),
-            )
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 4, offset: const Offset(2, 2))],
         ),
       ),
     );
@@ -207,36 +233,22 @@ class _BubbleBall extends StatelessWidget {
 class _AimPainter extends CustomPainter {
   final double angle;
   final Offset start;
-
   _AimPainter({required this.angle, required this.start});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white24
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    // Menggambar garis putus-putus
+    final paint = Paint()..color = Colors.white24..strokeWidth = 3..style = PaintingStyle.stroke..strokeCap = StrokeCap.round;
     double distance = 0;
-    // Pusat bola (offset sedikit agar garis mulai dari tengah bola)
     Offset centerStart = start + Offset(size.width / BubbleGameViewModel.cols / 2, size.width / BubbleGameViewModel.cols / 2);
-
-    while (distance < 500) { // Panjang garis bidik
+    while (distance < 500) {
       double dx = cos(angle) * distance;
       double dy = sin(angle) * distance;
-      
       Offset point = centerStart + Offset(dx, dy);
-      
-      // Berhenti menggambar jika keluar layar (opsional)
       if (point.dy < 0 || point.dx < 0 || point.dx > size.width) break;
-
       canvas.drawCircle(point, 2, paint..style = PaintingStyle.fill);
-      distance += 20; // Jarak antar titik
+      distance += 20;
     }
   }
-
   @override
   bool shouldRepaint(covariant _AimPainter oldDelegate) => oldDelegate.angle != angle;
 }
