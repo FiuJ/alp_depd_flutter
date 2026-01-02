@@ -55,6 +55,7 @@ flutter:
     - assets/images/YuccaWork.svg
     - assets/images/YuccaHome.svg
     - assets/images/bubbleshooter.png
+    - assets/images/tetris.webp
     - .env
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

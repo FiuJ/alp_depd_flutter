@@ -45,8 +45,8 @@ class _MinigameState extends State<Minigame> {
             const SizedBox(height: 25),
 
             _buildGameCard(
-              title: "Memory Game",
-              image: "assets/minigames/memory.png",
+              title: "Tetris",
+              image: "assets/images/tetris.webp",
               onTap: () {
                 Navigator.push(
                   context,
@@ -56,17 +56,6 @@ class _MinigameState extends State<Minigame> {
             ),
 
             const SizedBox(height: 25),
-
-            _buildGameCard(
-              title: "Guess The Place",
-              image: "assets/minigames/guessplace.png",
-              onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (_) => const GuessPlacePage()),
-                // );
-              },
-            ),
           ],
         ),
       ),
