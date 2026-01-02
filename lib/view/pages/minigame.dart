@@ -27,8 +27,8 @@ class _MinigameState extends State<Minigame> {
         child: Column(
           children: [
             _buildGameCard(
-              title: "Wordle",
-              image: "assets/minigames/wordle.png",
+              title: "Bubble Shooter",
+              image: "assets/images/bubbleshooter.png",
               onTap: () {
                 Navigator.push(
                   context,

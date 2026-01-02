@@ -34,7 +34,7 @@ class BubbleGameViewModel extends ChangeNotifier {
   }
 
   Color _randomColor() {
-    final colors = [Colors.red, Colors.blue, Colors.green, Colors.yellow];
+    final colors = [Colors.deepOrange, const Color(0xFFB7513F), Colors.brown, const Color.fromARGB(255, 235, 160, 61)];
     return colors[Random().nextInt(colors.length)];
   }
 

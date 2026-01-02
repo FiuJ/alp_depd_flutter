@@ -8,7 +8,7 @@ class BubbleGamePage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => BubbleGameViewModel(),
       child: const Scaffold(
-        backgroundColor: Color(0xFF1B1E3C),
+        backgroundColor: ui.Color.fromARGB(255, 255, 255, 255),
         body: SafeArea(
           child: _BubbleGameLayout(),
         ),
@@ -237,7 +237,7 @@ class _AimPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.white24..strokeWidth = 3..style = PaintingStyle.stroke..strokeCap = StrokeCap.round;
+    final paint = Paint()..color = const ui.Color.fromARGB(251, 255, 174, 0)..strokeWidth = 3..style = PaintingStyle.stroke..strokeCap = StrokeCap.round;
     double distance = 0;
     Offset centerStart = start + Offset(size.width / BubbleGameViewModel.cols / 2, size.width / BubbleGameViewModel.cols / 2);
     while (distance < 500) {
