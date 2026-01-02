@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:math' show Random, min;
+import 'dart:math' show Random, cos, min, sin;
 import 'dart:ui' as ui;
 
 import 'package:alp_depd_flutter/main.dart';
 import 'package:alp_depd_flutter/model/model.dart';
 import 'package:alp_depd_flutter/viewmodel/assignment_viewmodel.dart';
-import 'package:alp_depd_flutter/viewmodel/bubble_game_viewmodel.dart' show BubbleGameViewModel, BubbleGameViewmodel;
+import 'package:alp_depd_flutter/viewmodel/bubble_game_viewmodel.dart';
 import 'package:alp_depd_flutter/viewmodel/journal_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

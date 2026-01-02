@@ -1,4 +1,8 @@
 
+
+
+import 'dart:math' show Random;
+
 import 'package:flutter/material.dart' show Color, Colors, Offset;
 
 part 'journal_model.dart';

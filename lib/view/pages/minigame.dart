@@ -34,7 +34,7 @@ class _MinigameState extends State<Minigame> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => ChangeNotifierProvider(
-                      create: (_) => BubbleGameViewmodel(),
+                      create: (_) => BubbleGameViewModel(),
                       child: const BubbleGamePage(),
                     ),
                   ),
