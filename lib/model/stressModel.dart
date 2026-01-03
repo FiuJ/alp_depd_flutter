@@ -4,7 +4,13 @@ class StressModel {
   final String? id;
   final String userId;
   final int? assignmentId; // Menggunakan int? untuk relasi ke BIGINT
-  final int q1Vas, q2Mental, q3Physical, q4Temporal, q5Performance, q6Effort, q7Frustration;
+  final int q1Vas,
+      q2Mental,
+      q3Physical,
+      q4Temporal,
+      q5Performance,
+      q6Effort,
+      q7Frustration;
   final double totalPercentage;
   final DateTime createdAt;
 
@@ -40,7 +46,9 @@ class StressModel {
   factory StressModel.fromJson(Map<String, dynamic> json) => StressModel(
     id: json['id'].toString(),
     userId: json['user_id'],
-    assignmentId: json['assignment_id'] != null ? json['assignment_id'] as int : null,
+    assignmentId: json['assignment_id'] != null
+        ? json['assignment_id'] as int
+        : null,
     q1Vas: json['q1_vas'],
     q2Mental: json['q2_mental'],
     q3Physical: json['q3_physical'],

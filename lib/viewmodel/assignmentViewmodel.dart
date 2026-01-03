@@ -1,7 +1,7 @@
 // viewmodel/assignmentViewModel.dart
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../repository/assignment_repository.dart';
+import '../repository/assignmentRepository.dart';
 
 class AssignmentViewModel with ChangeNotifier {
   final AssignmentRepository _repo = AssignmentRepository();

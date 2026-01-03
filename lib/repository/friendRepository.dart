@@ -1,6 +1,5 @@
 import 'package:alp_depd_flutter/model/model.dart';
 import 'package:alp_depd_flutter/service/friendService.dart';
-import '../service/assignmentService.dart';
 import 'package:alp_depd_flutter/main.dart';
 
 class FriendRepository {

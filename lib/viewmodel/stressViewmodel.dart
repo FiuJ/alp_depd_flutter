@@ -12,8 +12,15 @@ class StressViewModel extends ChangeNotifier {
 
   double calculateFinalScore(List<int> scores) {
     // scores[4] adalah Q5: Performance. Jika puas (5), stres rendah (poin 1).
-    int q5Inverted = 6 - scores[4]; 
-    int total = scores[0] + scores[1] + scores[2] + scores[3] + q5Inverted + scores[5] + scores[6];
+    int q5Inverted = 6 - scores[4];
+    int total =
+        scores[0] +
+        scores[1] +
+        scores[2] +
+        scores[3] +
+        q5Inverted +
+        scores[5] +
+        scores[6];
     // Skala 1-5 untuk 7 tanya, min=7, max=35.
     return ((total - 7) / 28) * 100;
   }
@@ -28,9 +35,13 @@ class StressViewModel extends ChangeNotifier {
       final data = StressModel(
         userId: user.id,
         assignmentId: assignmentId,
-        q1Vas: scores[0], q2Mental: scores[1], q3Physical: scores[2],
-        q4Temporal: scores[3], q5Performance: scores[4],
-        q6Effort: scores[5], q7Frustration: scores[6],
+        q1Vas: scores[0],
+        q2Mental: scores[1],
+        q3Physical: scores[2],
+        q4Temporal: scores[3],
+        q5Performance: scores[4],
+        q6Effort: scores[5],
+        q7Frustration: scores[6],
         totalPercentage: calculateFinalScore(scores),
         createdAt: DateTime.now(),
       );
@@ -56,7 +67,9 @@ class StressViewModel extends ChangeNotifier {
         .eq('user_id', user.id)
         .order('created_at', ascending: true);
 
-    _stressHistory = (response as List).map((e) => StressModel.fromJson(e)).toList();
+    _stressHistory = (response as List)
+        .map((e) => StressModel.fromJson(e))
+        .toList();
     notifyListeners();
   }
 }
