@@ -9,7 +9,7 @@ class Timerviewmodel with ChangeNotifier {
   int _totalSeconds = 0;
   int _currentCycle = 1;
   bool _isWorkPhase = true;
-  bool _isRunning = false;
+  bool _isRunning = true;
 
   double _workDuration = 25.0;
   double _breakDuration = 5.0;
@@ -20,6 +20,7 @@ class Timerviewmodel with ChangeNotifier {
 
   VoidCallback? _onPhaseComplete;
   VoidCallback? _onAllCyclesComplete;
+  VoidCallback? _onBreakFinished;
 
   // --- Getters ---
   double get workDuration => _workDuration;
@@ -52,6 +53,8 @@ class Timerviewmodel with ChangeNotifier {
       _onPhaseComplete = callback;
   void setAllCyclesCompleteCallback(VoidCallback callback) =>
       _onAllCyclesComplete = callback;
+      void setBreakFinishedCallback(VoidCallback callback) =>
+    _onBreakFinished = callback;
 
   // --- Timer Logic ---
 
@@ -61,11 +64,12 @@ class Timerviewmodel with ChangeNotifier {
     _cycles = cycles;
     _currentCycle = 1;
     _isWorkPhase = true;
-    _isRunning = false;
 
     // Prepare the first Work session time immediately
     _totalSeconds = (_workDuration * 60).toInt();
     _remainingSeconds = _totalSeconds;
+
+    _startTimer();
     notifyListeners();
   }
 
@@ -98,13 +102,19 @@ class Timerviewmodel with ChangeNotifier {
     if (_isWorkPhase) {
       _isWorkPhase = false;
 
-      // FIX: Set the break time BEFORE calling the dialog so the UI is ready
+      // Set break duration
       _totalSeconds = (_breakDuration * 60).toInt();
       _remainingSeconds = _totalSeconds;
 
       notifyListeners();
+
+      // 🔥 START BREAK IMMEDIATELY
+      _startTimer();
+
+      // Show dialog AFTER break has started
       _onPhaseComplete?.call();
     } else {
+      _onBreakFinished?.call();
       _moveToNextPhase();
     }
   }

@@ -12,20 +12,26 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _studentIdController = TextEditingController();
 
   void _handleRegister() async {
     final success = await _viewModel.signUp(
       email: _emailController.text,
       password: _passwordController.text,
+      studentId: _studentIdController.text,
       username: _usernameController.text,
     );
 
     if (mounted) {
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Account created! Please Login.")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Account created! Please Login.")),
+        );
         Navigator.pop(context); // Go back to login
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_viewModel.errorMessage ?? "Error")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_viewModel.errorMessage ?? "Error")),
+        );
       }
     }
   }
@@ -44,18 +50,35 @@ class _RegisterPageState extends State<RegisterPage> {
               children: [
                 TextField(
                   controller: _usernameController,
-                  decoration: const InputDecoration(labelText: "Username", border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: "Username",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _emailController,
-                  decoration: const InputDecoration(labelText: "Email", border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: "Email",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _studentIdController,
+                  decoration: const InputDecoration(
+                    labelText: "Student ID",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: "Password", border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: "Password",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -63,17 +86,20 @@ class _RegisterPageState extends State<RegisterPage> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: _viewModel.isLoading ? null : _handleRegister,
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange, foregroundColor: Colors.white),
-                    child: _viewModel.isLoading 
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text("Register"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepOrange,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: _viewModel.isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text("Register"),
                   ),
                 ),
               ],
             ),
           ),
         );
-      }
+      },
     );
   }
 }

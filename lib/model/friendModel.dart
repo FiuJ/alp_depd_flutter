@@ -1,6 +1,5 @@
 part of 'model.dart';
 
-
 class FriendModel {
   final int id;
   final String username;

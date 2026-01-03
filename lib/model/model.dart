@@ -9,3 +9,5 @@ part 'bubbleModel.dart';
 part 'userModel.dart';
 part 'friendModel.dart';
 part 'stressModel.dart';
+part 'tetris_model.dart';
+part 'otherUserContentModel.dart';

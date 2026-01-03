@@ -49,19 +49,18 @@ class FriendRepository {
     }
   }
 
-  Future<List<FriendModel>> getFriends() async {
+  Future<List<ProfileModel>> getFriends() async {
     try {
       // 1. Get the current authenticated user's ID
       final userId = supabase.auth.currentUser?.id;
 
       if (userId == null) return [];
 
-      // 2. Fetch only assignments belonging to this user
       final response = await _service.fetchFriendsRaw();
 
       // 3. Map the response to your Model
       return (response as List)
-          .map((data) => FriendModel.fromMap(data))
+          .map((data) => ProfileModel.fromMap(data))
           .toList();
     } catch (e) {
       print("Error fetching friends: $e");

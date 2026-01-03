@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:alp_depd_flutter/model/model.dart';
 import 'package:flutter/material.dart';
-import '../model/tetris_model.dart';
 
 class TetrisViewModel extends ChangeNotifier {
   late List<List<Color?>> board;
-  
+
   late List<Point> currentPiece;
   late Color currentPieceColor;
   late TetrominoType currentType;
   Point currentPosition = Point(0, 0);
-  
+
   TetrominoType? nextType;
   Color? nextPieceColor;
 
@@ -25,8 +25,8 @@ class TetrisViewModel extends ChangeNotifier {
 
   void _initBoard() {
     board = List.generate(
-      TetrisConstants.rowCount, 
-      (_) => List.generate(TetrisConstants.colCount, (_) => null)
+      TetrisConstants.rowCount,
+      (_) => List.generate(TetrisConstants.colCount, (_) => null),
     );
   }
 
@@ -35,11 +35,11 @@ class TetrisViewModel extends ChangeNotifier {
     score = 0;
     isGameOver = false;
     isPlaying = true;
-    
-    _generateNextPiece(); 
-    
+
+    _generateNextPiece();
+
     _spawnPiece();
-    
+
     _startGameLoop();
     notifyListeners();
   }
@@ -62,11 +62,11 @@ class TetrisViewModel extends ChangeNotifier {
   void _spawnPiece() {
     currentType = nextType!;
     currentPieceColor = nextPieceColor!;
-    
+
     currentPiece = TetrisConstants.shapes[currentType]!
         .map((p) => Point(p[0], p[1]))
         .toList();
-    
+
     currentPosition = Point(0, 4);
 
     _generateNextPiece();
@@ -112,7 +112,9 @@ class TetrisViewModel extends ChangeNotifier {
 
   void rotate() {
     if (isGameOver) return;
-    List<Point> rotatedPiece = currentPiece.map((p) => Point(p.y, 3 - p.x)).toList();
+    List<Point> rotatedPiece = currentPiece
+        .map((p) => Point(p.y, 3 - p.x))
+        .toList();
     if (_isValidPosition(rotatedPiece, currentPosition)) {
       currentPiece = rotatedPiece;
       notifyListeners();
@@ -123,7 +125,10 @@ class TetrisViewModel extends ChangeNotifier {
     for (var p in piece) {
       int row = pos.x + p.x;
       int col = pos.y + p.y;
-      if (col < 0 || col >= TetrisConstants.colCount || row >= TetrisConstants.rowCount) return false;
+      if (col < 0 ||
+          col >= TetrisConstants.colCount ||
+          row >= TetrisConstants.rowCount)
+        return false;
       if (row >= 0 && board[row][col] != null) return false;
     }
     return true;
@@ -133,7 +138,10 @@ class TetrisViewModel extends ChangeNotifier {
     for (var p in currentPiece) {
       int row = currentPosition.x + p.x;
       int col = currentPosition.y + p.y;
-      if (row >= 0 && row < TetrisConstants.rowCount && col >= 0 && col < TetrisConstants.colCount) {
+      if (row >= 0 &&
+          row < TetrisConstants.rowCount &&
+          col >= 0 &&
+          col < TetrisConstants.colCount) {
         board[row][col] = currentPieceColor;
       }
     }
@@ -154,11 +162,11 @@ class TetrisViewModel extends ChangeNotifier {
         }
         board[0] = List.generate(TetrisConstants.colCount, (_) => null);
         score += 100;
-        row++; 
+        row++;
       }
     }
   }
-  
+
   @override
   void dispose() {
     _gameTimer?.cancel();

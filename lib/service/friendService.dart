@@ -33,7 +33,7 @@ class FriendService {
 
     for (final row in data) {
       if (row['user1_id'] != myId) {
-        relatedIds.add(row['user_id']);
+        relatedIds.add(row['user1_id']);
       }
       if (row['user2_id'] != myId) {
         relatedIds.add(row['user2_id']);
@@ -66,9 +66,15 @@ class FriendService {
     // Include both user profiles so we can pick the "other" user's username
     final response = await supabase
         .from('friends')
-        .select(
-          'id, user1_id, user2_id, confirmed, created_at, user1:profiles(username), user2:profiles(username)',
-        )
+        .select('''
+          id,
+          user1_id,
+          user2_id,
+          confirmed,
+          created_at,
+          user1:profiles!friends_user1_id_fkey(id, username, student_id),
+          user2:profiles!friends_user2_id_fkey(id, username, student_id)
+          ''')
         .or('user1_id.eq.${user.id},user2_id.eq.${user.id}')
         .eq('confirmed', true);
 
@@ -77,14 +83,21 @@ class FriendService {
       final user1 = (row['user1'] is Map) ? row['user1'] : {};
       final user2 = (row['user2'] is Map) ? row['user2'] : {};
 
-      // Determine the "other" user (not the current user)
       final otherUsername = (row['user1_id'] == user.id)
           ? (user2['username'] ?? '')
           : (user1['username'] ?? '');
 
+      final otherStudentId = (row['user1_id'] == user.id)
+          ? (user2['student_id'] ?? '')
+          : (user1['student_id'] ?? '');
+
+      final bool amUser1 = row['user1_id'] == user.id;
+      final otherUser = amUser1 ? user2 : user1;
+
       return {
-        'id': row['id'],
+        'id': otherUser['id'],
         'username': otherUsername,
+        'student_id': otherStudentId,
         'created_at': row['created_at'],
       };
     }).toList();

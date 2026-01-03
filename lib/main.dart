@@ -69,11 +69,11 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    Timersettingspage(),
-    Summary(), // Your journal page
-    UsersPage(),
-    Minigame(),
+  final List<Widget> _pages = [
+    const Timersettingspage(),
+    const Summary(), // Your journal page
+    const UsersPage(),
+    const Minigame(),
     Profile(),
     // Your timer page
   ];

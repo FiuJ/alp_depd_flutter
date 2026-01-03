@@ -13,17 +13,14 @@ class _FriendsPageState extends State<FriendsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-
-
-      body: FutureBuilder<List<FriendModel>>(
+      body: FutureBuilder<List<ProfileModel>>(
         future: _repository.getFriends(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("No assignments found."));
+            return const Center(child: Text("No Friends found."));
           }
 
           final assignments = snapshot.data!;
@@ -48,7 +45,7 @@ class _FriendsPageState extends State<FriendsPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            FriendDetailPage(friendModel: item),
+                            OtherUserProfilePage(friendData: item),
                       ),
                     ).then((_) {
                       // Refresh the list when returning from the form

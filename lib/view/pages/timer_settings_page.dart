@@ -125,6 +125,7 @@ class _TimersettingspageState extends State<Timersettingspage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
+                        settings: const RouteSettings(name: 'TimerPage'),
                         builder: (context) => TimerPage(
                           workDuration: workDuration,
                           breakDuration: breakDuration,

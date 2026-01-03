@@ -4,6 +4,7 @@ class TimerPage extends StatefulWidget {
   final double workDuration;
   final double breakDuration;
   final int cycles;
+  static const routeName = '/timer';
 
   const TimerPage({
     super.key,
@@ -38,6 +39,14 @@ class _TimerPageState extends State<TimerPage> {
         widget.cycles,
       );
     }
+
+    _viewModel.setBreakFinishedCallback(() {
+      if (!mounted) return;
+
+      Navigator.of(
+        context,
+      ).popUntil((route) => route.settings.name == 'TimerPage');
+    });
   }
 
   // void _handleAllCyclesComplete() async {
@@ -73,37 +82,53 @@ class _TimerPageState extends State<TimerPage> {
             assignments: _viewModel.selectedAssignments,
             onSave: (progressUpdates) async {
               await _viewModel.finalizeSession(progressUpdates);
-              
+
               if (mounted) {
                 Navigator.pop(context); // Tutup Progress Dialog
-                
+
                 // --- INTEGRASI PROMPT STRES DISINI ---
                 await showDialog(
                   context: context,
                   barrierDismissible: false,
                   builder: (context) => AlertDialog(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    title: const Text("Sesi Selesai!", style: TextStyle(fontWeight: FontWeight.bold)),
-                    content: const Text("Ingin mencatat tingkat stresmu agar bisa dipantau di grafik kesehatan mental?"),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    title: const Text(
+                      "Sesi Selesai!",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    content: const Text(
+                      "Ingin mencatat tingkat stresmu agar bisa dipantau di grafik kesehatan mental?",
+                    ),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.pop(context), 
-                        child: const Text("Nanti")
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Nanti"),
                       ),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: Style.orange),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Style.orange,
+                        ),
                         onPressed: () {
                           Navigator.pop(context);
                           // Ambil ID tugas pertama jika ada untuk relasi database
-                          int? firstId = _viewModel.selectedAssignments.isNotEmpty 
-                              ? int.tryParse(_viewModel.selectedAssignments.first.id) 
+                          int? firstId =
+                              _viewModel.selectedAssignments.isNotEmpty
+                              ? int.tryParse(
+                                  _viewModel.selectedAssignments.first.id,
+                                )
                               : null;
                           showDialog(
                             context: context,
-                            builder: (c) => StressFormDialog(assignmentId: firstId),
+                            builder: (c) =>
+                                StressFormDialog(assignmentId: firstId),
                           );
                         },
-                        child: const Text("Mulai Cek", style: TextStyle(color: Colors.white)),
+                        child: const Text(
+                          "Mulai Cek",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ],
                   ),
@@ -308,16 +333,21 @@ class _BreakDialog extends StatelessWidget {
             ],
           ),
           actions: [
-            if (!viewModel.isRunning)
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                onPressed:
-                    onContinue, // Correctly triggers _viewModel.moveToNextPhaseFromDialog()
-                child: const Text(
-                  'Start Break',
-                  style: TextStyle(color: Colors.white),
-                ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Style.orange),
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const Minigame()),
+                );
+              },
+              child: const Text(
+                "Do Break Activity",
+                style: TextStyle(color: Colors.white),
               ),
+            ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);

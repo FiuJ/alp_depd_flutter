@@ -13,15 +13,18 @@ class AuthViewModel extends ChangeNotifier {
 
   bool _isLoading = false;
   String? _errorMessage;
+  ProfileModel? _currentUserProfile;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  ProfileModel? get currentUserProfile => _currentUserProfile;
 
   // Sign Up (Register)
   Future<bool> signUp({
     required String email,
     required String password,
     required String username,
+    required String studentId,
   }) async {
     _setLoading(true);
     _errorMessage = null;
@@ -43,6 +46,7 @@ class AuthViewModel extends ChangeNotifier {
       final newProfile = ProfileModel(
         id: response.user!.id, // Link to Auth ID
         username: username,
+        studentId: studentId,
         createdAt: DateTime.now(),
       );
 
@@ -54,6 +58,24 @@ class AuthViewModel extends ChangeNotifier {
       _errorMessage = e.toString();
       _setLoading(false);
       return false;
+    }
+  }
+
+  Future<ProfileModel?> fetchCurrentUserProfile() async {
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) return null;
+
+      final response = await supabase
+          .from('profiles')
+          .select()
+          .eq('id', user.id)
+          .single();
+
+      return ProfileModel.fromMap(response);
+    } catch (e) {
+      debugPrint("Error fetching profile: $e");
+      return null;
     }
   }
 
