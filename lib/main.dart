@@ -1,9 +1,12 @@
 import 'package:alp_depd_flutter/shared/shared.dart';
+import 'package:alp_depd_flutter/viewmodel/journal_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'viewmodel/timer_viewmodel.dart';
+import 'viewmodel/timerViewmodel.dart';
+import 'viewmodel/stressViewmodel.dart';
+
 import 'constants/colors.dart';
 
 import 'view/pages/pages.dart';
@@ -22,7 +25,11 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => Timerviewmodel())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => Timerviewmodel()),
+        ChangeNotifierProvider(create: (_) => StressViewModel()), // Add this
+        ChangeNotifierProvider(create: (_) => JournalViewModel()), // Add this
+      ],
       child: const MyApp(),
     ),
   );

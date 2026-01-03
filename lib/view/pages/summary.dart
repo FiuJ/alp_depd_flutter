@@ -1,4 +1,3 @@
-
 part of 'pages.dart';
 
 class Summary extends StatefulWidget {
@@ -9,26 +8,21 @@ class Summary extends StatefulWidget {
 }
 
 class _SummaryState extends State<Summary> {
-
-  final JournalViewModel _viewModel = JournalViewModel();
-
-  int stressLevel = 24;      // Percentage
-  int tasksDone = 12;        // Count
-  int focusTime = 103;       // In Minutes
-  int restTime = 35;         // In Minutes
+  final JournalViewModel _journalViewModel = JournalViewModel();
 
   @override
   void initState() {
     super.initState();
-    // 2. Fetch data when page loads
+    // Fetch both journals and stress history when the page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _viewModel.fetchJournals();
+      _journalViewModel.fetchJournals();
+      context.read<StressViewModel>().fetchHistory();
     });
   }
 
   @override
   void dispose() {
-    _viewModel.dispose();
+    _journalViewModel.dispose();
     super.dispose();
   }
 
@@ -43,325 +37,202 @@ class _SummaryState extends State<Summary> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: _viewModel,
-      builder: (context, child){
-        return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          "",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black,
-        automaticallyImplyLeading: false,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 1. "How are you today" Banner
-              Container(
-                height: 280, 
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF0E3), // Light peach color
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      "How are you today?",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF4A3B32), 
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Expanded(
-                      child: SvgPicture.asset('assets/images/YuccaHome.svg', height: 300),
-                    ),
-                  ],
-                ),
+      listenable: _journalViewModel,
+      builder: (context, child) {
+        return Consumer<StressViewModel>(
+          builder: (context, stressVM, child) {
+            // Get the latest stress level from history, default to 0 if empty
+            final latestStress = stressVM.stressHistory.isNotEmpty 
+                ? stressVM.stressHistory.last.totalPercentage 
+                : 0.0;
+
+            return Scaffold(
+              backgroundColor: Colors.white,
+              appBar: AppBar(
+                title: const Text(""),
+                centerTitle: true,
+                backgroundColor: Colors.white,
+                elevation: 0,
+                foregroundColor: Colors.black,
+                automaticallyImplyLeading: false,
               ),
-
-              const SizedBox(height: 25),
-
-              // 2. "Your Condition Result" Title
-              const Text(
-                "Your Condition Result",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF4A3B32),
-                ),
-              ),
-
-              const SizedBox(height: 15),
-
-              // 3. Stats Grid
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      icon: Icons.psychology_outlined, 
-                      value: "$stressLevel%",
-                      label: "Stress Level",
-                      iconColor: Colors.deepOrange,
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: _buildStatCard(
-                      icon: Icons.check_circle_outline,
-                      value: "$tasksDone",
-                      label: "Task Done this Week",
-                      iconColor: Colors.deepOrange,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      icon: Icons.gps_fixed, 
-                      value: "${focusTime}min",
-                      label: "Focus Time",
-                      iconColor: Colors.deepOrange,
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: _buildStatCard(
-                      icon: Icons.bedtime_outlined, 
-                      value: "${restTime}min",
-                      label: "Rest Time",
-                      iconColor: Colors.deepOrange,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 30),
-
-              SizedBox(
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Journal(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepOrange,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text(
-                    "Start Journalling",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-
-
-              const SizedBox(height: 30),
-
-              // 4. "Your Journal" Section (Updated Design)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Your Journal",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF4A3B32),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Journalhistory(),
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // 1. "How are you today" Banner
+                      Container(
+                        height: 280,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF0E3), 
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                      );
-                    },
-                    child: const Text("See All", style: TextStyle(color: Colors.blue)),
-                  )
-                ],
+                        child: Column(
+                          children: [
+                            const Text(
+                              "How are you today?",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF4A3B32),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Expanded(
+                              child: SvgPicture.asset('assets/images/YuccaHome.svg', height: 300),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      // 2. "Your Condition Result" Title
+                      const Text(
+                        "Your Condition Result",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4A3B32),
+                        ),
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      // 3. Stats Grid (4 Cards)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildStatCard(
+                              icon: Icons.psychology_outlined,
+                              value: "${latestStress.toStringAsFixed(0)}%",
+                              label: "Current Stress",
+                              iconColor: Style.orange,
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: _buildStatCard(
+                              icon: Icons.check_circle_outline,
+                              value: "12", // Simulated Task Done
+                              label: "Task Done this Week",
+                              iconColor: Style.orange,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildStatCard(
+                              icon: Icons.gps_fixed,
+                              value: "103min", // Simulated Focus
+                              label: "Focus Time",
+                              iconColor: Style.orange,
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: _buildStatCard(
+                              icon: Icons.bedtime_outlined,
+                              value: "35min", // Simulated Rest
+                              label: "Rest Time",
+                              iconColor: Style.orange,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // 4. Stress Graphic Section (NEW)
+                      if (stressVM.stressHistory.isNotEmpty) ...[
+                        const Text(
+                          "Stress Level Trend",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF4A3B32),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildStressChart(stressVM),
+                        const SizedBox(height: 15),
+                        // 5. Latest Analysis Card
+                        _buildLatestStatusCard(latestStress),
+                      ],
+
+                      const SizedBox(height: 30),
+
+                      // 6. Action Button
+                      SizedBox(
+                        height: 55,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const Journal()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Style.orange,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Text(
+                            "Start Journalling",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // 7. "Your Journal" Section
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Your Journal",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF4A3B32),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const Journalhistory()),
+                              );
+                            },
+                            child: const Text("See All", style: TextStyle(color: Colors.blue)),
+                          )
+                        ],
+                      ),
+                      
+                      _buildRecentJournalsList(),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
               ),
-              
-              // Journal Card
-              
-
-
-              // 5. Start Session Button
-              
-              const SizedBox(height: 20),
-
-              // _buildRecentJournalsList(),
-                  
-                  const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ),
-    );
-      }
-    );
-  }
-
-  Widget _buildRecentJournalsList() {
-    if (_viewModel.isLoading) {
-      return const Center(
-          child: CircularProgressIndicator(color: Colors.deepOrange));
-    }
-
-    if (_viewModel.journals.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        child: const Text(
-          "No journals yet. Start writing today!",
-          style: TextStyle(color: Colors.grey),
-        ),
-      );
-    }
-
-    // Take only the first 2 items
-    final recentJournals = _viewModel.journals.take(2).toList();
-
-    return Column(
-      children: recentJournals.map((journal) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0), // Spacing between cards
-          child: _buildJournalCard(journal),
-        );
-      }).toList(),
-    );
-  }
-
-  // The Card Style (Copied exactly from your History page)
-  Widget _buildJournalCard(JournalModel journal) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => JournalDetail(journal: journal),
-          ),
+            );
+          },
         );
       },
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.08),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
-          border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Icon (Simulated A+ Paper Icon)
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                const Icon(
-                  Icons.description_outlined,
-                  size: 50,
-                  color: Colors.deepOrange,
-                ),
-                const Positioned(
-                  top: 18,
-                  child: Text(
-                    "A+",
-                    style: TextStyle(
-                      color: Colors.deepOrange,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )
-              ],
-            ),
-            const SizedBox(width: 16),
-            // Text Content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 4),
-                  // Date
-                  Text(
-                    _formatDate(journal.date),
-                    style: TextStyle(
-                      color: const Color(0xFF4A3B32).withValues(alpha: 0.8),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  // Title
-                  Text(
-                    journal.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF4A3B32),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  // Description
-                  Text(
-                    journal.content,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[500],
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
+
+  // --- Widget Builders ---
 
   Widget _buildStatCard({
     required IconData icon,
@@ -373,17 +244,14 @@ class _SummaryState extends State<Summary> {
       height: 140,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF6EB), // Very light orange/beige
+        color: const Color(0xFFFFF6EB),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Icon
           Icon(icon, color: iconColor, size: 40),
-          
-          // Text Content
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -411,4 +279,207 @@ class _SummaryState extends State<Summary> {
     );
   }
 
+  Widget _buildStressChart(StressViewModel vm) {
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.only(right: 20, left: 10, top: 20, bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFFFF0E3)),
+      ),
+      child: LineChart(
+        LineChartData(
+          gridData: const FlGridData(show: false),
+          titlesData: FlTitlesData(
+            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (val, meta) {
+                  int idx = val.toInt();
+                  if (idx % 2 != 0 || idx < 0 || idx >= vm.stressHistory.length) return const Text("");
+                  return Text(
+                    DateFormat('dd/MM').format(vm.stressHistory[idx].createdAt),
+                    style: const TextStyle(fontSize: 9, color: Colors.grey),
+                  );
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+          lineBarsData: [
+            LineChartBarData(
+              spots: vm.stressHistory.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.totalPercentage)).toList(),
+              isCurved: true,
+              color: Style.orange,
+              barWidth: 4,
+              isStrokeCapRound: true,
+              dotData: const FlDotData(show: true),
+              belowBarData: BarAreaData(
+                show: true,
+                color: Style.orange.withOpacity(0.1),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLatestStatusCard(double score) {
+    String status = "Tenang";
+    Color color = Colors.green;
+    IconData icon = Icons.sentiment_very_satisfied;
+
+    if (score > 75) {
+      status = "Overload";
+      color = Colors.red;
+      icon = Icons.warning_amber_rounded;
+    } else if (score > 50) {
+      status = "Stres Tinggi";
+      color = Colors.orange;
+      icon = Icons.sentiment_dissatisfied;
+    } else if (score > 25) {
+      status = "Stabil";
+      color = Colors.blue;
+      icon = Icons.sentiment_satisfied;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+            child: Icon(icon, color: color, size: 28),
+          ),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Status: $status",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: color, fontSize: 16),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Your current mental load is ${score.toStringAsFixed(1)}%. Take a short break if needed.",
+                  style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentJournalsList() {
+    if (_journalViewModel.isLoading) {
+      return const Center(child: CircularProgressIndicator(color: Colors.deepOrange));
+    }
+
+    if (_journalViewModel.journals.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        child: const Text("No journals yet. Start writing today!", style: TextStyle(color: Colors.grey)),
+      );
+    }
+
+    final recentJournals = _journalViewModel.journals.take(2).toList();
+    return Column(
+      children: recentJournals.map((journal) => Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: _buildJournalCard(journal),
+      )).toList(),
+    );
+  }
+
+  Widget _buildJournalCard(JournalModel journal) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => JournalDetail(journal: journal)),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.08),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+          border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                const Icon(Icons.description_outlined, size: 50, color: Colors.deepOrange),
+                const Positioned(
+                  top: 18,
+                  child: Text("A+", style: TextStyle(color: Colors.deepOrange, fontSize: 10, fontWeight: FontWeight.bold)),
+                )
+              ],
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 4),
+                  Text(
+                    _formatDate(journal.date),
+                    style: TextStyle(
+                      color: const Color(0xFF4A3B32).withOpacity(0.8),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    journal.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF4A3B32)),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    journal.content,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500], height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
