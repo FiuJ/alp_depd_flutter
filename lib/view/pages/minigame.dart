@@ -26,14 +26,18 @@ class _MinigameState extends State<Minigame> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-
             _buildGameCard(
-              title: "Wordle",
-              image: "assets/minigames/wordle.png",
+              title: "Bubble Shooter",
+              image: "assets/images/bubbleshooter.png",
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const WordlePage()),
+                  MaterialPageRoute(
+                    builder: (context) => ChangeNotifierProvider(
+                      create: (_) => BubbleGameViewModel(),
+                      child: const BubbleGamePage(),
+                    ),
+                  ),
                 );
               },
             ),
@@ -41,8 +45,8 @@ class _MinigameState extends State<Minigame> {
             const SizedBox(height: 25),
 
             _buildGameCard(
-              title: "Memory Game",
-              image: "assets/minigames/memory.png",
+              title: "Tetris",
+              image: "assets/images/tetris.webp",
               onTap: () {
                 Navigator.push(
                   context,
@@ -52,17 +56,6 @@ class _MinigameState extends State<Minigame> {
             ),
 
             const SizedBox(height: 25),
-
-            _buildGameCard(
-              title: "Guess The Place",
-              image: "assets/minigames/guessplace.png",
-              onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (_) => const GuessPlacePage()),
-                // );
-              },
-            ),
           ],
         ),
       ),
@@ -89,7 +82,7 @@ class _MinigameState extends State<Minigame> {
               color: Colors.orange.withOpacity(0.2),
               offset: const Offset(2, 3),
               blurRadius: 6,
-            )
+            ),
           ],
         ),
         child: Stack(
@@ -109,7 +102,9 @@ class _MinigameState extends State<Minigame> {
             Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 18, vertical: 10),
+                  horizontal: 18,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   // ignore: deprecated_member_use
                   color: Colors.white.withOpacity(0.85),
@@ -124,7 +119,7 @@ class _MinigameState extends State<Minigame> {
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

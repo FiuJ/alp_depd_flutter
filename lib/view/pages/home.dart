@@ -179,7 +179,7 @@ class _HomeState extends State<Home> {
                 value: _workDuration,
                 min: 5,
                 max: 60,
-                activeColor: Colors.deepOrange,
+                activeColor: const ui.Color(0xFFFF5722),
                 onChanged: (val) {
                   setState(() {
                     _workDuration = val;
