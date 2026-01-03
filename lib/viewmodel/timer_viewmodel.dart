@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:alp_depd_flutter/model/model.dart';
 import 'package:flutter/material.dart';
-import '../model/assignment_model.dart';
-import '../repository/assignment_repository.dart';
+import '../repository/assignmentRepository.dart';
 
 class Timerviewmodel with ChangeNotifier {
   Timer? _timer;

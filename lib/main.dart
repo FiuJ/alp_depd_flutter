@@ -65,8 +65,9 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> _pages = const [
     Timersettingspage(),
     Summary(), // Your journal page
+    UsersPage(),
+    Minigame(),
     Profile(),
-    Minigame(), // Create this page
     // Your timer page
   ];
 
@@ -89,8 +90,9 @@ class _MainNavigationState extends State<MainNavigation> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.timer), label: "Timer"),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: "Journal"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.group), label: "Community"),
           BottomNavigationBarItem(icon: Icon(Icons.games), label: "Minigame"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),
     );

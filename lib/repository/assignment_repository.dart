@@ -1,7 +1,6 @@
-// Removed `dart:ffi` import — not available on web and not used here.
+import 'package:alp_depd_flutter/model/model.dart';
 
-import '../model/assignment_model.dart';
-import '../service/assignment_service.dart';
+import '../service/assignmentService.dart';
 import 'package:alp_depd_flutter/main.dart';
 
 class AssignmentRepository {
@@ -43,8 +42,6 @@ class AssignmentRepository {
       'due_date': due.toIso8601String(),
     });
   }
-
-  
 
   Future<void> updateBulkProgress(Map<String, int> updates) async {
     for (var entry in updates.entries) {

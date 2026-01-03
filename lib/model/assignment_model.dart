@@ -1,3 +1,5 @@
+part of 'model.dart';
+
 class Assignment {
   final String id;
   final String userId;
