@@ -22,6 +22,8 @@ import 'package:alp_depd_flutter/repository/assignmentRepository.dart';
 import 'package:alp_depd_flutter/shared/style.dart';
 import 'package:alp_depd_flutter/viewmodel/auth_viewmodel.dart';
 import 'package:alp_depd_flutter/view/widgets/custom_white_slider_thumb.dart';
+import 'package:alp_depd_flutter/model/tetris_model.dart';
+import 'package:alp_depd_flutter/viewmodel/tetris_viewmodel.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'home.dart';
@@ -47,3 +49,4 @@ part 'usersListPage.dart';
 part 'usersPage.dart';
 part 'bubble_game_page.dart';
 part 'stress_form_dialog.dart';
+part 'tetris_view.dart';
