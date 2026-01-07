@@ -72,76 +72,140 @@ class _TimerPageState extends State<TimerPage> {
   //   }
   // }
 
+  // void _handleAllCyclesComplete() async {
+  //   if (mounted) {
+  //     if (_viewModel.selectedAssignments.isNotEmpty) {
+  //       await showDialog(
+  //         context: context,
+  //         barrierDismissible: false,
+  //         builder: (context) => ProgressUpdateDialog(
+  //           assignments: _viewModel.selectedAssignments,
+  //           onSave: (progressUpdates) async {
+  //             await _viewModel.finalizeSession(progressUpdates);
+
+  //             if (mounted) {
+  //               Navigator.pop(context); // Tutup Progress Dialog
+
+  //               // --- INTEGRASI PROMPT STRES DISINI ---
+  //               await showDialog(
+  //                 context: context,
+  //                 barrierDismissible: false,
+  //                 builder: (context) => AlertDialog(
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(20),
+  //                   ),
+  //                   title: const Text(
+  //                     "Sesi Selesai!",
+  //                     style: TextStyle(fontWeight: FontWeight.bold),
+  //                   ),
+  //                   content: const Text(
+  //                     "Ingin mencatat tingkat stresmu agar bisa dipantau di grafik kesehatan mental?",
+  //                   ),
+  //                   actions: [
+  //                     TextButton(
+  //                       onPressed: () => Navigator.pop(context),
+  //                       child: const Text("Nanti"),
+  //                     ),
+  //                     ElevatedButton(
+  //                       style: ElevatedButton.styleFrom(
+  //                         backgroundColor: Style.orange,
+  //                       ),
+  //                       onPressed: () {
+  //                         Navigator.pop(context);
+  //                         // Ambil ID tugas pertama jika ada untuk relasi database
+  //                         int? firstId =
+  //                             _viewModel.selectedAssignments.isNotEmpty
+  //                             ? int.tryParse(
+  //                                 _viewModel.selectedAssignments.first.id,
+  //                               )
+  //                             : null;
+  //                         showDialog(
+  //                           context: context,
+  //                           builder: (c) =>
+  //                               StressFormDialog(assignmentId: firstId),
+  //                         );
+  //                       },
+  //                       child: const Text(
+  //                         "Mulai Cek",
+  //                         style: TextStyle(color: Colors.white),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               );
+
+  //               if (mounted) Navigator.pop(context); // Kembali ke Settings
+  //             }
+  //           },
+  //         ),
+  //       );
+  //     } else {
+  //       Navigator.pop(context);
+  //     }
+  //   }
+  // }
   void _handleAllCyclesComplete() async {
-    if (mounted) {
-      if (_viewModel.selectedAssignments.isNotEmpty) {
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => ProgressUpdateDialog(
-            assignments: _viewModel.selectedAssignments,
-            onSave: (progressUpdates) async {
-              await _viewModel.finalizeSession(progressUpdates);
+    if (!mounted) return;
 
-              if (mounted) {
-                Navigator.pop(context); // Tutup Progress Dialog
+    // 1. If there are assignments, show the Progress Update Dialog
+    if (_viewModel.selectedAssignments.isNotEmpty) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => ProgressUpdateDialog(
+          assignments: _viewModel.selectedAssignments,
+          onSave: (progressUpdates) async {
+            // Finalize session in the DB
+            await _viewModel.finalizeSession(progressUpdates);
+            
+            if (mounted) {
+              // Close ProgressUpdateDialog
+              Navigator.pop(context, true); 
+            }
+          },
+        ),
+      );
+    }
 
-                // --- INTEGRASI PROMPT STRES DISINI ---
-                await showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) => AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    title: const Text(
-                      "Sesi Selesai!",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    content: const Text(
-                      "Ingin mencatat tingkat stresmu agar bisa dipantau di grafik kesehatan mental?",
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text("Nanti"),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Style.orange,
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          // Ambil ID tugas pertama jika ada untuk relasi database
-                          int? firstId =
-                              _viewModel.selectedAssignments.isNotEmpty
-                              ? int.tryParse(
-                                  _viewModel.selectedAssignments.first.id,
-                                )
-                              : null;
-                          showDialog(
-                            context: context,
-                            builder: (c) =>
-                                StressFormDialog(assignmentId: firstId),
-                          );
-                        },
-                        child: const Text(
-                          "Mulai Cek",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+    if (!mounted) return;
 
-                if (mounted) Navigator.pop(context); // Kembali ke Settings
-              }
-            },
+    // 2. Show the Stress Level Prompt and WAIT for the user's decision
+    bool? startStressCheck = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Sesi Selesai!", style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text("Ingin mencatat tingkat stresmu agar bisa dipantau di grafik kesehatan mental?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false), // User clicked "Nanti"
+            child: const Text("Nanti"),
           ),
-        );
-      } else {
-        Navigator.pop(context);
-      }
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Style.orange),
+            onPressed: () => Navigator.pop(context, true), // User clicked "Mulai Cek"
+            child: const Text("Mulai Cek", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    // 3. If user agreed, show the StressFormDialog and WAIT for it to close
+    if (startStressCheck == true && mounted) {
+      int? firstId = _viewModel.selectedAssignments.isNotEmpty
+          ? int.tryParse(_viewModel.selectedAssignments.first.id)
+          : null;
+
+      await showDialog(
+        context: context,
+        builder: (c) => StressFormDialog(assignmentId: firstId),
+      );
+    }
+
+    // 4. Finally, return to the previous screen (Home/Settings)
+    if (mounted) {
+      Navigator.pop(context);
     }
   }
 
