@@ -58,6 +58,8 @@ flutter:
     - assets/images/YuccaHome.svg
     - assets/images/bubbleshooter.png
     - assets/images/tetris.webp
+    - assets/images/YuccaSad.svg
+    - assets/images/YuccaNeutral.svg
     - .env
     - assets/images/lounge.jpg
     - assets/images/
