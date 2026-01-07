@@ -6,6 +6,7 @@ import 'package:alp_depd_flutter/constants/colors.dart';
 import 'package:alp_depd_flutter/main.dart';
 import 'package:alp_depd_flutter/model/model.dart';
 import 'package:alp_depd_flutter/repository/friendRepository.dart';
+import 'package:alp_depd_flutter/repository/statsRepository.dart';
 import 'package:alp_depd_flutter/viewmodel/assignmentViewmodel.dart';
 import 'package:alp_depd_flutter/viewmodel/bubble_game_viewmodel.dart';
 import 'package:alp_depd_flutter/viewmodel/friend_detail_viewmodel.dart';
@@ -24,6 +25,7 @@ import 'package:alp_depd_flutter/shared/style.dart';
 import 'package:alp_depd_flutter/viewmodel/auth_viewmodel.dart';
 import 'package:alp_depd_flutter/view/widgets/custom_white_slider_thumb.dart';
 import 'package:alp_depd_flutter/viewmodel/tetris_viewmodel.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'home.dart';

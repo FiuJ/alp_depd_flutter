@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:alp_depd_flutter/main.dart';
 import 'package:alp_depd_flutter/model/model.dart';
 import 'package:flutter/material.dart';
 import '../repository/assignmentRepository.dart';
@@ -53,8 +54,8 @@ class Timerviewmodel with ChangeNotifier {
       _onPhaseComplete = callback;
   void setAllCyclesCompleteCallback(VoidCallback callback) =>
       _onAllCyclesComplete = callback;
-      void setBreakFinishedCallback(VoidCallback callback) =>
-    _onBreakFinished = callback;
+  void setBreakFinishedCallback(VoidCallback callback) =>
+      _onBreakFinished = callback;
 
   // --- Timer Logic ---
 
@@ -95,11 +96,24 @@ class Timerviewmodel with ChangeNotifier {
     });
   }
 
+  Future<void> _recordSessionToDB(String type, double minutes) async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) return;
+
+    await supabase.from('timer_sessions').insert({
+      'user_id': userId,
+      'type': type, // 'focus' or 'rest'
+      'duration_minutes': minutes.toInt(),
+      'created_at': DateTime.now().toIso8601String(),
+    });
+  }
+
   void _handlePhaseEnd() {
     _timer?.cancel();
     _isRunning = false;
 
     if (_isWorkPhase) {
+      _recordSessionToDB('focus', _workDuration);
       _isWorkPhase = false;
 
       // Set break duration
@@ -114,6 +128,7 @@ class Timerviewmodel with ChangeNotifier {
       // Show dialog AFTER break has started
       _onPhaseComplete?.call();
     } else {
+      _recordSessionToDB('rest', _breakDuration);
       _onBreakFinished?.call();
       _moveToNextPhase();
     }

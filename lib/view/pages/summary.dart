@@ -9,6 +9,8 @@ class Summary extends StatefulWidget {
 
 class _SummaryState extends State<Summary> {
   final JournalViewModel _journalViewModel = JournalViewModel();
+  final StatsRepository _statsRepo = StatsRepository();
+  final AssignmentRepository _assignmentRepo = AssignmentRepository();
 
   String _getYuccaAsset(double score) {
     // if (score <= 33.3) {
@@ -23,13 +25,34 @@ class _SummaryState extends State<Summary> {
     return 'assets/images/YuccaSad.png';
   }
 
+  late Future<Map<String, dynamic>> _statsFuture;
+
+  Future<Map<String, dynamic>> _loadStats() async {
+    try {
+      final results = await Future.wait([
+        _assignmentRepo.getWeeklyCompletedTasksCount(),
+        _statsRepo.getWeeklyStats(),
+      ]);
+      return {'tasks': results[0], 'timer': results[1]};
+    } catch (e) {
+      print("Fetch Error: $e");
+      rethrow; // Let FutureBuilder handle the error
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    // Fetch both journals and stress history when the page loads
+
+    // 1. Initialize IMMEDIATELY so build() can access it right away
+    _statsFuture = _loadStats();
+
+    // 2. These remain in the callback as they are just firing background fetches
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _journalViewModel.fetchJournals();
-      context.read<StressViewModel>().fetchHistory();
+      if (context.mounted) {
+        context.read<StressViewModel>().fetchHistory();
+      }
     });
   }
 
@@ -64,7 +87,6 @@ class _SummaryState extends State<Summary> {
       builder: (context, child) {
         return Consumer<StressViewModel>(
           builder: (context, stressVM, child) {
-            // Get the latest stress level from history, default to 0 if empty
             final latestStress = stressVM.stressHistory.isNotEmpty
                 ? stressVM.stressHistory.last.totalPercentage
                 : 0.0;
@@ -75,7 +97,6 @@ class _SummaryState extends State<Summary> {
               backgroundColor: Colors.white,
               appBar: AppBar(
                 title: const Text(""),
-                centerTitle: true,
                 backgroundColor: Colors.white,
                 elevation: 0,
                 foregroundColor: Colors.black,
@@ -90,7 +111,6 @@ class _SummaryState extends State<Summary> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // 1. "How are you today" Banner
                       Container(
                         height: 280,
                         padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -108,14 +128,24 @@ class _SummaryState extends State<Summary> {
                                 color: Color(0xFF4A3B32),
                               ),
                             ),
+                            //Bugfixing
+                            const Text(
+                              "Your Condition Result",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF4A3B32),
+                              ),
+                            ),
+
+                            const SizedBox(height: 15),
+
                             const SizedBox(height: 10),
                             Expanded(
                               child: Align(
-                                alignment: Alignment
-                                    .bottomCenter, // Pushes the child to the bottom
+                                alignment: Alignment.bottomCenter,
                                 child: Image.asset(
                                   yuccaAsset,
-                                  // Remove height: 200 here so it doesn't fight the Expanded constraints
                                   fit: BoxFit.contain,
                                 ),
                               ),
@@ -123,8 +153,7 @@ class _SummaryState extends State<Summary> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      // 2. "Your Condition Result" Title
+                      const SizedBox(height: 20),
                       const Text(
                         "Your Condition Result",
                         style: TextStyle(
@@ -133,57 +162,91 @@ class _SummaryState extends State<Summary> {
                           color: Color(0xFF4A3B32),
                         ),
                       ),
-
                       const SizedBox(height: 15),
 
-                      // 3. Stats Grid (4 Cards)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildStatCard(
-                              icon: Icons.psychology_outlined,
-                              value: "${latestStress.toStringAsFixed(0)}%",
-                              label: "Current Stress",
-                              iconColor: Style.orange,
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: _buildStatCard(
-                              icon: Icons.check_circle_outline,
-                              value: "12", // Simulated Task Done
-                              label: "Task Done this Week",
-                              iconColor: Style.orange,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 15),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildStatCard(
-                              icon: Icons.gps_fixed,
-                              value: "103min", // Simulated Focus
-                              label: "Focus Time",
-                              iconColor: Style.orange,
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: _buildStatCard(
-                              icon: Icons.bedtime_outlined,
-                              value: "35min", // Simulated Rest
-                              label: "Rest Time",
-                              iconColor: Style.orange,
-                            ),
-                          ),
-                        ],
+                      // --- DYNAMIC STATS GRID START ---
+                      FutureBuilder<Map<String, dynamic>>(
+                        future: _statsFuture,
+                        // Inside your Summary.dart FutureBuilder builder:
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text(
+                                "Error loading data: ${snapshot.error}",
+                              ),
+                            );
+                          }
+
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          // Use dynamic to avoid strict Map<String, int> casting errors
+                          final Map<String, dynamic> timerData =
+                              snapshot.data?['timer'] ?? {};
+
+                          final focus = timerData['focus'] ?? 0;
+                          final rest = timerData['rest'] ?? 0;
+                          final tasks = snapshot.data?['tasks'] ?? 0;
+
+                          return Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildStatCard(
+                                      icon: Icons.psychology_outlined,
+                                      value:
+                                          "${latestStress.toStringAsFixed(0)}%",
+                                      label: "Current Stress",
+                                      iconColor: Style.orange,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 15),
+                                  Expanded(
+                                    child: _buildStatCard(
+                                      icon: Icons.check_circle_outline,
+                                      value: "$tasks",
+                                      label: "Task Done this Week",
+                                      iconColor: Style.orange,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 15),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildStatCard(
+                                      icon: Icons.gps_fixed,
+                                      value:
+                                          "${focus}min", // This will show 100min based on your DB
+                                      label: "Focus Time",
+                                      iconColor: Style.orange,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 15),
+                                  Expanded(
+                                    child: _buildStatCard(
+                                      icon: Icons.bedtime_outlined,
+                                      value:
+                                          "${rest}min", // This will show 20min based on your DB
+                                      label: "Rest Time",
+                                      iconColor: Style.orange,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
                       ),
 
+                      // --- DYNAMIC STATS GRID END ---
                       const SizedBox(height: 20),
-
-                      // 4. Stress Graphic Section (NEW)
                       if (stressVM.stressHistory.isNotEmpty) ...[
                         const Text(
                           "Stress Level Trend",
@@ -196,13 +259,9 @@ class _SummaryState extends State<Summary> {
                         const SizedBox(height: 12),
                         _buildStressChart(stressVM),
                         const SizedBox(height: 15),
-                        // 5. Latest Analysis Card
                         _buildLatestStatusCard(latestStress),
                       ],
-
                       const SizedBox(height: 30),
-
-                      // 6. Action Button
                       SizedBox(
                         height: 55,
                         child: ElevatedButton(
@@ -217,7 +276,6 @@ class _SummaryState extends State<Summary> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Style.orange,
                             foregroundColor: Colors.white,
-                            elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -231,10 +289,7 @@ class _SummaryState extends State<Summary> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 30),
-
-                      // 7. "Your Journal" Section
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -262,7 +317,6 @@ class _SummaryState extends State<Summary> {
                           ),
                         ],
                       ),
-
                       _buildRecentJournalsList(),
                       const SizedBox(height: 20),
                     ],
