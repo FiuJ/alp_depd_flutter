@@ -12,15 +12,15 @@ class _SummaryState extends State<Summary> {
 
   String _getYuccaAsset(double score) {
     // if (score <= 33.3) {
-    //   return 'assets/images/YuccaHome.svg'; 
+    //   return 'assets/images/YuccaHome.svg';
     // } else if (score <= 66.6) {
-    //   return 'assets/images/YuccaNeutral.svg'; 
+    //   return 'assets/images/YuccaNeutral.svg';
     // } else {
     //   return 'assets/images/YuccaSad.svg';
     // }
-    if (score <= 25) return 'assets/images/YuccaHome.svg';
-    if (score <= 50) return 'assets/images/YuccaNeutral.svg';
-    return 'assets/images/YuccaSad.svg';
+    if (score <= 25) return 'assets/images/YuccaHappy.png';
+    if (score <= 50) return 'assets/images/YuccaNeutral.png';
+    return 'assets/images/YuccaSad.png';
   }
 
   @override
@@ -41,8 +41,18 @@ class _SummaryState extends State<Summary> {
 
   String _formatDate(DateTime date) {
     const List<String> months = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
     return "${date.day} ${months[date.month - 1]} ${date.year}";
   }
@@ -55,8 +65,8 @@ class _SummaryState extends State<Summary> {
         return Consumer<StressViewModel>(
           builder: (context, stressVM, child) {
             // Get the latest stress level from history, default to 0 if empty
-            final latestStress = stressVM.stressHistory.isNotEmpty 
-                ? stressVM.stressHistory.last.totalPercentage 
+            final latestStress = stressVM.stressHistory.isNotEmpty
+                ? stressVM.stressHistory.last.totalPercentage
                 : 0.0;
 
             final yuccaAsset = _getYuccaAsset(latestStress);
@@ -73,16 +83,19 @@ class _SummaryState extends State<Summary> {
               ),
               body: SafeArea(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 10,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // 1. "How are you today" Banner
                       Container(
                         height: 280,
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFF0E3), 
+                          color: const Color(0xFFFFF0E3),
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Column(
@@ -95,16 +108,21 @@ class _SummaryState extends State<Summary> {
                                 color: Color(0xFF4A3B32),
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 10),
                             Expanded(
-                              // child: SvgPicture.asset('assets/images/YuccaHome.svg', height: 300),
-                              child: SvgPicture.asset(yuccaAsset, height: 300),
+                              child: Align(
+                                alignment: Alignment
+                                    .bottomCenter, // Pushes the child to the bottom
+                                child: Image.asset(
+                                  yuccaAsset,
+                                  // Remove height: 200 here so it doesn't fight the Expanded constraints
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ),
-
-                      const SizedBox(height: 25),
 
                       // 2. "Your Condition Result" Title
                       const Text(
@@ -191,7 +209,9 @@ class _SummaryState extends State<Summary> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const Journal()),
+                              MaterialPageRoute(
+                                builder: (context) => const Journal(),
+                              ),
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -204,7 +224,10 @@ class _SummaryState extends State<Summary> {
                           ),
                           child: const Text(
                             "Start Journalling",
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -227,14 +250,19 @@ class _SummaryState extends State<Summary> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const Journalhistory()),
+                                MaterialPageRoute(
+                                  builder: (context) => const Journalhistory(),
+                                ),
                               );
                             },
-                            child: const Text("See All", style: TextStyle(color: Colors.blue)),
-                          )
+                            child: const Text(
+                              "See All",
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ),
                         ],
                       ),
-                      
+
                       _buildRecentJournalsList(),
                       const SizedBox(height: 20),
                     ],
@@ -289,7 +317,7 @@ class _SummaryState extends State<Summary> {
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -308,15 +336,22 @@ class _SummaryState extends State<Summary> {
         LineChartData(
           gridData: const FlGridData(show: false),
           titlesData: FlTitlesData(
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (val, meta) {
                   int idx = val.toInt();
-                  if (idx % 2 != 0 || idx < 0 || idx >= vm.stressHistory.length) return const Text("");
+                  if (idx % 2 != 0 || idx < 0 || idx >= vm.stressHistory.length)
+                    return const Text("");
                   return Text(
                     DateFormat('dd/MM').format(vm.stressHistory[idx].createdAt),
                     style: const TextStyle(fontSize: 9, color: Colors.grey),
@@ -328,7 +363,11 @@ class _SummaryState extends State<Summary> {
           borderData: FlBorderData(show: false),
           lineBarsData: [
             LineChartBarData(
-              spots: vm.stressHistory.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.totalPercentage)).toList(),
+              spots: vm.stressHistory
+                  .asMap()
+                  .entries
+                  .map((e) => FlSpot(e.key.toDouble(), e.value.totalPercentage))
+                  .toList(),
               isCurved: true,
               color: Style.orange,
               barWidth: 4,
@@ -375,7 +414,10 @@ class _SummaryState extends State<Summary> {
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
             child: Icon(icon, color: color, size: 28),
           ),
           const SizedBox(width: 15),
@@ -385,7 +427,11 @@ class _SummaryState extends State<Summary> {
               children: [
                 Text(
                   "Status: $status",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: color, fontSize: 16),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    fontSize: 16,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -402,7 +448,9 @@ class _SummaryState extends State<Summary> {
 
   Widget _buildRecentJournalsList() {
     if (_journalViewModel.isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Colors.deepOrange));
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.deepOrange),
+      );
     }
 
     if (_journalViewModel.journals.isEmpty) {
@@ -414,16 +462,23 @@ class _SummaryState extends State<Summary> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.grey[200]!),
         ),
-        child: const Text("No journals yet. Start writing today!", style: TextStyle(color: Colors.grey)),
+        child: const Text(
+          "No journals yet. Start writing today!",
+          style: TextStyle(color: Colors.grey),
+        ),
       );
     }
 
     final recentJournals = _journalViewModel.journals.take(2).toList();
     return Column(
-      children: recentJournals.map((journal) => Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: _buildJournalCard(journal),
-      )).toList(),
+      children: recentJournals
+          .map(
+            (journal) => Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: _buildJournalCard(journal),
+            ),
+          )
+          .toList(),
     );
   }
 
@@ -432,7 +487,9 @@ class _SummaryState extends State<Summary> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => JournalDetail(journal: journal)),
+          MaterialPageRoute(
+            builder: (context) => JournalDetail(journal: journal),
+          ),
         );
       },
       child: Container(
@@ -455,11 +512,22 @@ class _SummaryState extends State<Summary> {
             Stack(
               alignment: Alignment.center,
               children: [
-                const Icon(Icons.description_outlined, size: 50, color: Colors.deepOrange),
+                const Icon(
+                  Icons.description_outlined,
+                  size: 50,
+                  color: Colors.deepOrange,
+                ),
                 const Positioned(
                   top: 18,
-                  child: Text("A+", style: TextStyle(color: Colors.deepOrange, fontSize: 10, fontWeight: FontWeight.bold)),
-                )
+                  child: Text(
+                    "A+",
+                    style: TextStyle(
+                      color: Colors.deepOrange,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ],
             ),
             const SizedBox(width: 16),
@@ -481,14 +549,22 @@ class _SummaryState extends State<Summary> {
                     journal.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF4A3B32)),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF4A3B32),
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     journal.content,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500], height: 1.4),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                      height: 1.4,
+                    ),
                   ),
                 ],
               ),

@@ -28,7 +28,7 @@ class _MinigameState extends State<Minigame> {
           children: [
             _buildGameCard(
               title: "Bubble Shooter",
-              image: "assets/images/bubbleshooter.png",
+              image: "assets/images/Bubble.webp",
               onTap: () {
                 Navigator.push(
                   context,
@@ -46,7 +46,7 @@ class _MinigameState extends State<Minigame> {
 
             _buildGameCard(
               title: "Tetris",
-              image: "assets/images/tetris.webp",
+              image: "assets/images/Tetris.webp",
               onTap: () {
                 Navigator.push(
                   context,

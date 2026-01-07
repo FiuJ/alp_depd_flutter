@@ -56,10 +56,13 @@ flutter:
     - assets/images/Yucca.svg
     - assets/images/YuccaWork.svg
     - assets/images/YuccaHome.svg
-    - assets/images/bubbleshooter.png
-    - assets/images/tetris.webp
+    - assets/images/Bubble.webp
+    - assets/images/Tetris.webp
     - assets/images/YuccaSad.svg
     - assets/images/YuccaNeutral.svg
+    - assets/images/YuccaSad.png
+    - assets/images/YuccaNeutral.png
+    - assets/images/YuccaHappy.png
     - .env
     - assets/images/lounge.jpg
     - assets/images/
