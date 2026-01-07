@@ -13,11 +13,14 @@ class _MinigameState extends State<Minigame> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepOrange[50],
+      backgroundColor: Style.background,
 
       appBar: AppBar(
-        title: const Text("Minigame"),
-        backgroundColor: themeColor,
+        title: const Text(
+          "Minigame",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Style.orange,
         foregroundColor: Colors.white,
         centerTitle: true,
       ),

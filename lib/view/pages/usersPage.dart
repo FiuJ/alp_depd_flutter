@@ -18,7 +18,12 @@ class _UsersPageState extends State<UsersPage> {
       length: titles.length,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Community'),
+          backgroundColor: Style.orange,
+          centerTitle: true,
+          title: const Text(
+            'Community',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          ),
           // This check specifies which nested Scrollable's scroll notification
           // should be listened to.
           //
@@ -34,21 +39,44 @@ class _UsersPageState extends State<UsersPage> {
           // The elevation value of the app bar when scroll view has
           // scrolled underneath the app bar.
           scrolledUnderElevation: 4.0,
-          shadowColor: Theme.of(context).shadowColor,
+          foregroundColor: Colors.white,
+          shadowColor: Colors.black.withOpacity(0.25),
           bottom: TabBar(
+            labelColor: Colors.white,
+            indicatorColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
             tabs: <Widget>[
               Tab(
-                icon: const Icon(Icons.face_retouching_natural_outlined),
-                text: titles[0],
+                icon: const Icon(
+                  Icons.face_retouching_natural_outlined,
+                  // color: Colors.white,
+                ),
+                child: Text(
+                  titles[0],
+                  style: const TextStyle(
+                    // color: Colors.white,
+                  ), // Set text color to white
+                ),
               ),
-              Tab(icon: const Icon(Icons.public), text: titles[1]),
+              Tab(
+                icon: const Icon(
+                  Icons.public,
+                  // color: Colors.white
+                ),
+                child: Text(
+                  titles[1],
+                  style: const TextStyle(
+                    // color: Colors.white,
+                  ), // Set text color to white
+                ),
+              ),
             ],
           ),
         ),
 
         floatingActionButton: FloatingActionButton(
           heroTag: "friend_request_btn",
-          backgroundColor: Colors.orange,
+          backgroundColor: Style.orange,
           child: const Icon(Icons.mail_rounded, color: Colors.white),
           onPressed: () {
             Navigator.push(

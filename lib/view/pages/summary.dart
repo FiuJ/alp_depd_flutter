@@ -123,7 +123,7 @@ class _SummaryState extends State<Summary> {
                           ],
                         ),
                       ),
-
+                      const SizedBox(height: 10),
                       // 2. "Your Condition Result" Title
                       const Text(
                         "Your Condition Result",
