@@ -10,6 +10,19 @@ class Summary extends StatefulWidget {
 class _SummaryState extends State<Summary> {
   final JournalViewModel _journalViewModel = JournalViewModel();
 
+  String _getYuccaAsset(double score) {
+    // if (score <= 33.3) {
+    //   return 'assets/images/YuccaHome.svg'; 
+    // } else if (score <= 66.6) {
+    //   return 'assets/images/YuccaNeutral.svg'; 
+    // } else {
+    //   return 'assets/images/YuccaSad.svg';
+    // }
+    if (score <= 25) return 'assets/images/YuccaHome.svg';
+    if (score <= 50) return 'assets/images/YuccaNeutral.svg';
+    return 'assets/images/YuccaSad.svg';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +58,8 @@ class _SummaryState extends State<Summary> {
             final latestStress = stressVM.stressHistory.isNotEmpty 
                 ? stressVM.stressHistory.last.totalPercentage 
                 : 0.0;
+
+            final yuccaAsset = _getYuccaAsset(latestStress);
 
             return Scaffold(
               backgroundColor: Colors.white,
@@ -82,7 +97,8 @@ class _SummaryState extends State<Summary> {
                             ),
                             const SizedBox(height: 20),
                             Expanded(
-                              child: SvgPicture.asset('assets/images/YuccaHome.svg', height: 300),
+                              // child: SvgPicture.asset('assets/images/YuccaHome.svg', height: 300),
+                              child: SvgPicture.asset(yuccaAsset, height: 300),
                             ),
                           ],
                         ),
