@@ -9,7 +9,7 @@ class Timerviewmodel with ChangeNotifier {
   int _totalSeconds = 0;
   int _currentCycle = 1;
   bool _isWorkPhase = true;
-  bool _isRunning = true;
+  bool _isRunning = false;
 
   double _workDuration = 25.0;
   double _breakDuration = 5.0;
