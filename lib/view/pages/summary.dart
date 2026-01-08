@@ -120,17 +120,10 @@ class _SummaryState extends State<Summary> {
                         ),
                         child: Column(
                           children: [
-                            const Text(
-                              "How are you today?",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF4A3B32),
-                              ),
-                            ),
+                            
                             //Bugfixing
                             const Text(
-                              "Your Condition Result",
+                              "Your Condition",
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -155,7 +148,7 @@ class _SummaryState extends State<Summary> {
                       ),
                       const SizedBox(height: 20),
                       const Text(
-                        "Your Condition Result",
+                        "Condition Result",
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
