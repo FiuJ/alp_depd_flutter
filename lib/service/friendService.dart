@@ -113,7 +113,7 @@ class FriendService {
     final response = await supabase
         .from('friends')
         .select(
-          'id, user1_id, user2_id, confirmed, created_at, user1:profiles(username)',
+          'id, user1_id, user2_id, confirmed, created_at, user1:profiles!friends_user1_id_fkey(username)',
         )
         .eq('user2_id', user.id)
         .eq('confirmed', false);

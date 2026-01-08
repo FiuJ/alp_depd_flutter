@@ -180,7 +180,9 @@ class _SummaryState extends State<Summary> {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
-                              child: CircularProgressIndicator(),
+                              child: CircularProgressIndicator(
+                                color: Colors.deepOrange,
+                              ),
                             );
                           }
 
